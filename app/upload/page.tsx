@@ -55,8 +55,17 @@ export default function UploadPage() {
       if (match) chosenSubjectId = match.id;
     }
 
-    if (!file || !title || !type || !chosenSubjectId) {
-      setMessage("Please fill Title, Type, Subject and choose a file.");
+    if (!chosenSubjectId) {
+      if (subjectName.trim()) {
+        setMessage("Subject not found. Select Department/Semester and type the exact subject name that exists in the database.");
+      } else {
+        setMessage("Please fill Title, Type, Subject and choose a file.");
+      }
+      return;
+    }
+
+    if (!file || !title || !type) {
+      setMessage("Please fill Title, Type and choose a file.");
       return;
     }
     setLoading(true);
