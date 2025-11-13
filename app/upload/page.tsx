@@ -19,6 +19,7 @@ export default function UploadPage() {
   const [deptId, setDeptId] = useState<string>("");
   const [semId, setSemId] = useState<string>("");
   const [subjectId, setSubjectId] = useState<string>("");
+  const [subjectName, setSubjectName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [departments, setDepartments] = useState<Dept[]>([]);
   const [semesters, setSemesters] = useState<Sem[]>([]);
@@ -45,7 +46,16 @@ export default function UploadPage() {
 
   const onSubmit = async () => {
     setMessage(null);
-    if (!file || !title || !type || !subjectId) {
+    // Resolve subject choice: prefer explicit ID; else match by typed name within current filters
+    let chosenSubjectId = subjectId;
+    if (!chosenSubjectId && subjectName.trim()) {
+      const match = filteredSubjects.find(
+        (s) => s.name.toLowerCase() === subjectName.trim().toLowerCase()
+      );
+      if (match) chosenSubjectId = match.id;
+    }
+
+    if (!file || !title || !type || !chosenSubjectId) {
       setMessage("Please fill Title, Type, Subject and choose a file.");
       return;
     }
@@ -73,7 +83,7 @@ export default function UploadPage() {
     }
 
     const { error: insErr } = await supabase.from("resources").insert({
-      subject_id: subjectId,
+      subject_id: chosenSubjectId,
       type,
       title,
       description,
@@ -85,7 +95,7 @@ export default function UploadPage() {
     if (insErr) setMessage(`Saved file but DB insert failed: ${insErr.message}`);
     else {
       setMessage("Uploaded successfully. Waiting for admin approval.");
-      setTitle(""); setDescription(""); setType(""); setSubjectId(""); setDeptId(""); setSemId(""); setFile(null);
+      setTitle(""); setDescription(""); setType(""); setSubjectId(""); setSubjectName(""); setDeptId(""); setSemId(""); setFile(null);
     }
   };
 
@@ -117,12 +127,7 @@ export default function UploadPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Select value={subjectId} onValueChange={setSubjectId}>
-                <SelectTrigger><SelectValue placeholder="Subject (e.g., Data Structures)" /></SelectTrigger>
-                <SelectContent>
-                  {filteredSubjects.map(s=> <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Input className="px-3 py-2 rounded-md border" placeholder="Subject (e.g., Data Structures)" value={subjectName} onChange={(e)=>{ setSubjectName(e.target.value); setSubjectId(""); }} />
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
                 <SelectContent>
