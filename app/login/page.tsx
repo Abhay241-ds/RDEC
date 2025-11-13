@@ -11,12 +11,37 @@ export default function LoginPage() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUserEmail(data.user?.email ?? null));
+    let mounted = true;
+    // Initialize session and subscribe to auth state changes
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      const email = data.session?.user?.email ?? null;
+      setUserEmail(email);
+      // Clean auth hash from URL if present
+      if (typeof window !== "undefined" && window.location.hash.includes("access_token")) {
+        history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      setUserEmail(session?.user?.email ?? null);
+    });
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const sendLink = async () => {
     setStatus(null);
-    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : undefined } });
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : undefined,
+      },
+    });
     if (error) setStatus(error.message); else setStatus("Check your email for the login link.");
   };
 
