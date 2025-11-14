@@ -13,6 +13,7 @@ function BrowseClient() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<any[]>([]);
+  const [status, setStatus] = useState<string | null>(null);
 
   const q = params.get("q") || "";
   const dept = params.get("dept") || "";
@@ -21,6 +22,7 @@ function BrowseClient() {
 
   const fetchData = async () => {
     setLoading(true);
+    setStatus(null);
     let query = supabase
       .from("resources")
       .select("id,title,type,created_at,subjects(name,semester_id,department_id)")
@@ -34,9 +36,30 @@ function BrowseClient() {
     if (dept) query = query.eq("subjects.department_id", dept);
     if (sem) query = query.eq("subjects.semester_id", sem);
 
-    const { data, error } = await query;
-    if (!error && data) setItems(data as any[]);
-    setLoading(false);
+    try {
+      const { data, error } = await query;
+      if (error) throw error;
+      if (data) {
+        setItems(data as any[]);
+        // Cache latest successful results for offline fallback
+        if (typeof window !== 'undefined') {
+          try { localStorage.setItem('browse-cache', JSON.stringify(data)); } catch {}
+        }
+      }
+    } catch (e: any) {
+      setStatus("Service temporarily unavailable. Showing last saved results, if any.");
+      // Fallback to cached results
+      if (typeof window !== 'undefined') {
+        try {
+          const raw = localStorage.getItem('browse-cache');
+          if (raw) setItems(JSON.parse(raw)); else setItems([]);
+        } catch { setItems([]); }
+      } else {
+        setItems([]);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -53,6 +76,7 @@ function BrowseClient() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl font-bold text-slate-900">Browse Resources</h1>
+      {status && <div className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">{status}</div>}
 
       <div className="mt-6 grid sm:grid-cols-4 gap-3">
         <Input placeholder="Search..." defaultValue={q} onKeyDown={(e)=>{ if(e.key==='Enter') onFilterChange('q',(e.target as HTMLInputElement).value); }} />
