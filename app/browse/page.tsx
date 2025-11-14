@@ -87,21 +87,27 @@ function BrowseClient() {
           <SelectTrigger><SelectValue placeholder="Department" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Departments</SelectItem>
-            {DEPARTMENTS.map(d=> <SelectItem key={d} value={d}>{d}</SelectItem>)}
+            {DEPARTMENTS.filter(Boolean).map(d=> (
+              <SelectItem key={d} value={d}>{d}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={semValue} onValueChange={(v)=>onFilterChange('sem', v === 'all' ? '' : v)}>
           <SelectTrigger><SelectValue placeholder="Semester" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Semesters</SelectItem>
-            {SEMESTERS.map(s=> <SelectItem key={s} value={String(s)}>{s}</SelectItem>)}
+            {SEMESTERS.filter(Boolean).map(s=> (
+              <SelectItem key={s} value={String(s)}>{s}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={typeValue} onValueChange={(v)=>onFilterChange('type', v === 'all' ? '' : v)}>
           <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
-            {TYPES.map(t=> <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+            {TYPES.filter(t=> !!t.value).map(t=> (
+              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
