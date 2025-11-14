@@ -19,6 +19,9 @@ function BrowseClient() {
   const dept = params.get("dept") || "";
   const sem = params.get("sem") || "";
   const type = params.get("type") || "";
+  const deptValue = dept || "all";
+  const semValue = sem || "all";
+  const typeValue = type || "all";
 
   const fetchData = async () => {
     setLoading(true);
@@ -80,24 +83,24 @@ function BrowseClient() {
 
       <div className="mt-6 grid sm:grid-cols-4 gap-3">
         <Input placeholder="Search..." defaultValue={q} onKeyDown={(e)=>{ if(e.key==='Enter') onFilterChange('q',(e.target as HTMLInputElement).value); }} />
-        <Select value={dept} onValueChange={(v)=>onFilterChange('dept', v)}>
+        <Select value={deptValue} onValueChange={(v)=>onFilterChange('dept', v === 'all' ? '' : v)}>
           <SelectTrigger><SelectValue placeholder="Department" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Departments</SelectItem>
+            <SelectItem value="all">All Departments</SelectItem>
             {DEPARTMENTS.map(d=> <SelectItem key={d} value={d}>{d}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={sem} onValueChange={(v)=>onFilterChange('sem', v)}>
+        <Select value={semValue} onValueChange={(v)=>onFilterChange('sem', v === 'all' ? '' : v)}>
           <SelectTrigger><SelectValue placeholder="Semester" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Semesters</SelectItem>
+            <SelectItem value="all">All Semesters</SelectItem>
             {SEMESTERS.map(s=> <SelectItem key={s} value={String(s)}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={type} onValueChange={(v)=>onFilterChange('type', v)}>
+        <Select value={typeValue} onValueChange={(v)=>onFilterChange('type', v === 'all' ? '' : v)}>
           <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Types</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             {TYPES.map(t=> <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
           </SelectContent>
         </Select>
