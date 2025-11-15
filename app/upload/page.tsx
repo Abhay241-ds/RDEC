@@ -16,10 +16,9 @@ export default function UploadPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<string>("");
-  const [deptId, setDeptId] = useState<string>("");
-  const [semId, setSemId] = useState<string>("");
-  const [subjectId, setSubjectId] = useState<string>("");
-  const [subjectName, setSubjectName] = useState<string>("");
+  const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
+  const [selectedSemIds, setSelectedSemIds] = useState<string[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [departments, setDepartments] = useState<Dept[]>([]);
   const [semesters, setSemesters] = useState<Sem[]>([]);
@@ -41,28 +40,18 @@ export default function UploadPage() {
   }, []);
 
   const filteredSubjects = useMemo(() => {
-    return subjects.filter(s => (!deptId || s.department_id === deptId) && (!semId || s.semester_id === semId));
-  }, [subjects, deptId, semId]);
+    const deptSet = new Set(selectedDeptIds);
+    const semSet = new Set(selectedSemIds);
+    return subjects.filter(s =>
+      (deptSet.size === 0 || deptSet.has(s.department_id)) &&
+      (semSet.size === 0 || semSet.has(s.semester_id))
+    );
+  }, [subjects, selectedDeptIds, selectedSemIds]);
 
   const onSubmit = async () => {
     setMessage(null);
-    // Resolve subject choice: prefer explicit ID; else match by typed name within current filters
-    let chosenSubjectId = subjectId;
-    if (!chosenSubjectId && subjectName.trim()) {
-      const match = filteredSubjects.find(
-        (s) => s.name.toLowerCase() === subjectName.trim().toLowerCase()
-      );
-      if (match) chosenSubjectId = match.id;
-    }
-
-    if (!chosenSubjectId) {
-      if (subjectName.trim()) {
-        setMessage("Subject not found. Select Department/Semester and type the exact subject name that exists in the database.");
-      } else {
-        setMessage("Please fill Title, Type, Subject and choose a file.");
-      }
-      return;
-    }
+    const chosenSubjectIds = selectedSubjectIds.filter(id => filteredSubjects.some(s=>s.id===id));
+    if (chosenSubjectIds.length === 0) { setMessage("Select at least one Subject."); return; }
 
     if (!file || !title || !type) {
       setMessage("Please fill Title, Type and choose a file.");
@@ -91,21 +80,23 @@ export default function UploadPage() {
       return;
     }
 
-    const { error: insErr } = await supabase.from("resources").insert({
-      subject_id: chosenSubjectId,
+    // Create one resource row per selected subject
+    const rows = chosenSubjectIds.map((sid)=>({
+      subject_id: sid,
       type,
       title,
       description,
       file_path: path,
       status: "pending",
       uploader_id: userId,
-    });
+    }));
+    const { error: insErr } = await supabase.from("resources").insert(rows);
 
     setLoading(false);
     if (insErr) setMessage(`Saved file but DB insert failed: ${insErr.message}`);
     else {
       setMessage("Uploaded successfully. Waiting for admin approval.");
-      setTitle(""); setDescription(""); setType(""); setSubjectId(""); setSubjectName(""); setDeptId(""); setSemId(""); setFile(null);
+      setTitle(""); setDescription(""); setType(""); setSelectedSubjectIds([]); setSelectedDeptIds([]); setSelectedSemIds([]); setFile(null);
     }
   };
 
@@ -122,27 +113,50 @@ export default function UploadPage() {
             <Textarea className="px-3 py-2" placeholder="Description" value={description} onChange={e=>setDescription(e.target.value)} />
 
             <div className="grid grid-cols-2 gap-3">
-              <Select value={deptId} onValueChange={(v)=>{ setDeptId(v); setSubjectId(""); }}>
-                <SelectTrigger><SelectValue placeholder="Department" /></SelectTrigger>
-                <SelectContent>
-                  {departments.map(d=> <SelectItem key={d.id} value={d.id}>{d.code}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={semId} onValueChange={(v)=>{ setSemId(v); setSubjectId(""); }}>
-                <SelectTrigger><SelectValue placeholder="Semester" /></SelectTrigger>
-                <SelectContent>
-                  {semesters.map(s=> <SelectItem key={s.id} value={s.id}>{s.number}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <div className="rounded-md border p-2">
+                <div className="text-xs font-medium text-slate-600 mb-1">Departments</div>
+                <div className="grid grid-cols-2 gap-1 max-h-40 overflow-auto">
+                  {departments.map(d=> (
+                    <label key={d.id} className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" checked={selectedDeptIds.includes(d.id)} onChange={(e)=>{
+                        setSelectedSubjectIds([]);
+                        setSelectedDeptIds(prev=> e.target.checked ? [...prev, d.id] : prev.filter(x=>x!==d.id));
+                      }} />
+                      <span>{d.code}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-md border p-2">
+                <div className="text-xs font-medium text-slate-600 mb-1">Semesters</div>
+                <div className="grid grid-cols-3 gap-1 max-h-40 overflow-auto">
+                  {semesters.map(s=> (
+                    <label key={s.id} className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" checked={selectedSemIds.includes(s.id)} onChange={(e)=>{
+                        setSelectedSubjectIds([]);
+                        setSelectedSemIds(prev=> e.target.checked ? [...prev, s.id] : prev.filter(x=>x!==s.id));
+                      }} />
+                      <span>{s.number}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Select value={subjectId} onValueChange={(v)=>{ setSubjectId(v); const s = filteredSubjects.find(x=>x.id===v); setSubjectName(s?.name || ""); }}>
-                <SelectTrigger><SelectValue placeholder="Subject" /></SelectTrigger>
-                <SelectContent>
-                  {filteredSubjects.map(s=> <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <div className="rounded-md border p-2">
+                <div className="text-xs font-medium text-slate-600 mb-1">Subjects</div>
+                <div className="grid grid-cols-1 gap-1 max-h-40 overflow-auto">
+                  {filteredSubjects.map(s=> (
+                    <label key={s.id} className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" checked={selectedSubjectIds.includes(s.id)} onChange={(e)=>{
+                        setSelectedSubjectIds(prev=> e.target.checked ? [...prev, s.id] : prev.filter(x=>x!==s.id));
+                      }} />
+                      <span>{s.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
                 <SelectContent>
