@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { DEPARTMENTS, SEMESTERS, TYPES } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 
@@ -19,6 +20,7 @@ function BrowseClient() {
   const [semRows, setSemRows] = useState<Array<{id:string; number:number}>>([]);
 
   const q = params.get("q") || "";
+  const [searchText, setSearchText] = useState(q);
   const dept = params.get("dept") || "";
   const sem = params.get("sem") || "";
   const type = params.get("type") || "";
@@ -43,7 +45,10 @@ function BrowseClient() {
       .limit(60);
 
     if (type) query = query.eq("type", type);
-    if (q) query = query.ilike("title", `%${q}%`);
+    if (q) {
+      // Search by title OR subject name
+      query = query.or(`title.ilike.%${q}%,subjects.name.ilike.%${q}%`);
+    }
     // Filter via nested fields using PostgREST filters with dot notation
     if (selectedDeptId) query = query.eq("subjects.department_id", selectedDeptId);
     if (selectedSemId) query = query.eq("subjects.semester_id", selectedSemId);
@@ -116,7 +121,10 @@ function BrowseClient() {
       {status && <div className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">{status}</div>}
 
       <div className="mt-6 grid sm:grid-cols-5 gap-3">
-        <Input placeholder="Search..." defaultValue={q} onKeyDown={(e)=>{ if(e.key==='Enter') onFilterChange('q',(e.target as HTMLInputElement).value); }} />
+        <div className="flex gap-2">
+          <Input placeholder="Search by title or subject..." value={searchText} onChange={(e)=>setSearchText(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter') onFilterChange('q', searchText); }} />
+          <Button onClick={()=>onFilterChange('q', searchText)}>Search</Button>
+        </div>
         <Select value={deptValue} onValueChange={(v)=>onFilterChange('dept', v === 'all' ? '' : v)}>
           <SelectTrigger><SelectValue placeholder="Department" /></SelectTrigger>
           <SelectContent>
