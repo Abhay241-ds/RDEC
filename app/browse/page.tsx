@@ -14,21 +14,30 @@ function BrowseClient() {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [status, setStatus] = useState<string | null>(null);
+  const [subjects, setSubjects] = useState<Array<{id:string; name:string}>>([]);
+  const [deptRows, setDeptRows] = useState<Array<{id:string; code:string}>>([]);
+  const [semRows, setSemRows] = useState<Array<{id:string; number:number}>>([]);
 
   const q = params.get("q") || "";
   const dept = params.get("dept") || "";
   const sem = params.get("sem") || "";
   const type = params.get("type") || "";
+  const sub = params.get("sub") || ""; // subject_id
   const deptValue = dept || "all";
   const semValue = sem || "all";
   const typeValue = type || "all";
+  const subValue = sub || "all";
+
+  // Map selected dept code and sem number to their UUID IDs
+  const selectedDeptId = deptRows.find(d=> d.code === dept)?.id;
+  const selectedSemId = semRows.find(s=> String(s.number) === sem)?.id;
 
   const fetchData = async () => {
     setLoading(true);
     setStatus(null);
     let query = supabase
       .from("resources")
-      .select("id,title,type,created_at,subjects(name,semester_id,department_id)")
+      .select("id,title,type,created_at,subject_id,subjects(name,semester_id,department_id)")
       .eq("status", "approved")
       .order("created_at", { ascending: false })
       .limit(60);
@@ -36,8 +45,9 @@ function BrowseClient() {
     if (type) query = query.eq("type", type);
     if (q) query = query.ilike("title", `%${q}%`);
     // Filter via nested fields using PostgREST filters with dot notation
-    if (dept) query = query.eq("subjects.department_id", dept);
-    if (sem) query = query.eq("subjects.semester_id", sem);
+    if (selectedDeptId) query = query.eq("subjects.department_id", selectedDeptId);
+    if (selectedSemId) query = query.eq("subjects.semester_id", selectedSemId);
+    if (sub) query = query.eq("subject_id", sub);
 
     try {
       const { data, error } = await query;
@@ -68,7 +78,21 @@ function BrowseClient() {
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, dept, sem, type]);
+  }, [q, dept, sem, type, sub, selectedDeptId, selectedSemId]);
+
+  // Load subjects list once for the Subject filter
+  useEffect(() => {
+    (async () => {
+      const [subj, dpts, sems] = await Promise.all([
+        supabase.from('subjects').select('id,name,department_id,semester_id').order('name'),
+        supabase.from('departments').select('id,code').order('code'),
+        supabase.from('semesters').select('id,number').order('number'),
+      ]);
+      if (!subj.error && subj.data) setSubjects(subj.data as any);
+      if (!dpts.error && dpts.data) setDeptRows(dpts.data as any);
+      if (!sems.error && sems.data) setSemRows(sems.data as any);
+    })();
+  }, []);
 
   const onFilterChange = (key: string, value: string) => {
     const sp = new URLSearchParams(params.toString());
@@ -81,7 +105,7 @@ function BrowseClient() {
       <h1 className="text-2xl font-bold text-slate-900">Browse Resources</h1>
       {status && <div className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">{status}</div>}
 
-      <div className="mt-6 grid sm:grid-cols-4 gap-3">
+      <div className="mt-6 grid sm:grid-cols-5 gap-3">
         <Input placeholder="Search..." defaultValue={q} onKeyDown={(e)=>{ if(e.key==='Enter') onFilterChange('q',(e.target as HTMLInputElement).value); }} />
         <Select value={deptValue} onValueChange={(v)=>onFilterChange('dept', v === 'all' ? '' : v)}>
           <SelectTrigger><SelectValue placeholder="Department" /></SelectTrigger>
@@ -108,6 +132,18 @@ function BrowseClient() {
             {TYPES.filter(t=> !!t.value).map(t=> (
               <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+        <Select value={subValue} onValueChange={(v)=>onFilterChange('sub', v === 'all' ? '' : v)}>
+          <SelectTrigger><SelectValue placeholder="Subject" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Subjects</SelectItem>
+            {subjects
+              .filter(s => (!selectedDeptId || (s as any).department_id === selectedDeptId))
+              .filter(s => (!selectedSemId || (s as any).semester_id === selectedSemId))
+              .map(s => (
+                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+              ))}
           </SelectContent>
         </Select>
       </div>
