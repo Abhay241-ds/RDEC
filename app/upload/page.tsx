@@ -18,7 +18,7 @@ export default function UploadPage() {
   const [type, setType] = useState<string>("");
   const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
   const [selectedSemIds, setSelectedSemIds] = useState<string[]>([]);
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
+  const [selectedSubjectNames, setSelectedSubjectNames] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [departments, setDepartments] = useState<Dept[]>([]);
   const [semesters, setSemesters] = useState<Sem[]>([]);
@@ -48,9 +48,26 @@ export default function UploadPage() {
     );
   }, [subjects, selectedDeptIds, selectedSemIds]);
 
+  // Deduplicate by subject name across filtered subjects
+  const dedupedSubjects = useMemo(() => {
+    const map = new Map<string, string[]>(); // name -> [ids]
+    for (const s of filteredSubjects) {
+      const arr = map.get(s.name) || [];
+      arr.push(s.id);
+      map.set(s.name, arr);
+    }
+    return Array.from(map.entries()).map(([name, ids]) => ({ name, ids }));
+  }, [filteredSubjects]);
+
   const onSubmit = async () => {
     setMessage(null);
-    const chosenSubjectIds = selectedSubjectIds.filter(id => filteredSubjects.some(s=>s.id===id));
+    // Expand selected names to all matching subject IDs in current filtered set
+    const chosenSubjectIds = Array.from(new Set(
+      selectedSubjectNames.flatMap(name => {
+        const entry = dedupedSubjects.find(d => d.name === name);
+        return entry ? entry.ids : [];
+      })
+    ));
     if (chosenSubjectIds.length === 0) { setMessage("Select at least one Subject."); return; }
 
     if (!file || !title || !type) {
@@ -96,7 +113,7 @@ export default function UploadPage() {
     if (insErr) setMessage(`Saved file but DB insert failed: ${insErr.message}`);
     else {
       setMessage("Uploaded successfully. Waiting for admin approval.");
-      setTitle(""); setDescription(""); setType(""); setSelectedSubjectIds([]); setSelectedDeptIds([]); setSelectedSemIds([]); setFile(null);
+      setTitle(""); setDescription(""); setType(""); setSelectedSubjectNames([]); setSelectedDeptIds([]); setSelectedSemIds([]); setFile(null);
     }
   };
 
@@ -119,7 +136,7 @@ export default function UploadPage() {
                   {departments.map(d=> (
                     <label key={d.id} className="flex items-center gap-2 text-sm">
                       <input type="checkbox" checked={selectedDeptIds.includes(d.id)} onChange={(e)=>{
-                        setSelectedSubjectIds([]);
+                        setSelectedSubjectNames([]);
                         setSelectedDeptIds(prev=> e.target.checked ? [...prev, d.id] : prev.filter(x=>x!==d.id));
                       }} />
                       <span>{d.code}</span>
@@ -133,7 +150,7 @@ export default function UploadPage() {
                   {semesters.map(s=> (
                     <label key={s.id} className="flex items-center gap-2 text-sm">
                       <input type="checkbox" checked={selectedSemIds.includes(s.id)} onChange={(e)=>{
-                        setSelectedSubjectIds([]);
+                        setSelectedSubjectNames([]);
                         setSelectedSemIds(prev=> e.target.checked ? [...prev, s.id] : prev.filter(x=>x!==s.id));
                       }} />
                       <span>{s.number}</span>
@@ -147,12 +164,12 @@ export default function UploadPage() {
               <div className="rounded-md border p-2">
                 <div className="text-xs font-medium text-slate-600 mb-1">Subjects</div>
                 <div className="grid grid-cols-1 gap-1 max-h-40 overflow-auto">
-                  {filteredSubjects.map(s=> (
-                    <label key={s.id} className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" checked={selectedSubjectIds.includes(s.id)} onChange={(e)=>{
-                        setSelectedSubjectIds(prev=> e.target.checked ? [...prev, s.id] : prev.filter(x=>x!==s.id));
+                  {dedupedSubjects.map(d=> (
+                    <label key={d.name} className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" checked={selectedSubjectNames.includes(d.name)} onChange={(e)=>{
+                        setSelectedSubjectNames(prev=> e.target.checked ? [...prev, d.name] : prev.filter(x=>x!==d.name));
                       }} />
-                      <span>{s.name}</span>
+                      <span>{d.name}</span>
                     </label>
                   ))}
                 </div>
