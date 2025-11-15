@@ -137,7 +137,12 @@ export default function UploadPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Input className="px-3 py-2 rounded-md border" placeholder="Subject (e.g., Data Structures)" value={subjectName} onChange={(e)=>{ setSubjectName(e.target.value); setSubjectId(""); }} />
+              <Select value={subjectId} onValueChange={(v)=>{ setSubjectId(v); const s = filteredSubjects.find(x=>x.id===v); setSubjectName(s?.name || ""); }}>
+                <SelectTrigger><SelectValue placeholder="Subject" /></SelectTrigger>
+                <SelectContent>
+                  {filteredSubjects.map(s=> <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
                 <SelectContent>
