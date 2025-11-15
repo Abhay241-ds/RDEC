@@ -98,6 +98,7 @@ export default function UploadPage() {
       description,
       file_path: path,
       status: "pending",
+      uploader_id: userId,
     });
 
     setLoading(false);
