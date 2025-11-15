@@ -37,7 +37,7 @@ function BrowseClient() {
     setStatus(null);
     let query = supabase
       .from("resources")
-      .select("id,title,type,created_at,subject_id,subjects(name,semester_id,department_id)")
+      .select("id,title,type,created_at,file_path,subject_id,subjects(name,semester_id,department_id)")
       .eq("status", "approved")
       .order("created_at", { ascending: false })
       .limit(60);
@@ -93,6 +93,16 @@ function BrowseClient() {
       if (!sems.error && sems.data) setSemRows(sems.data as any);
     })();
   }, []);
+
+  const openFile = async (path: string) => {
+    try {
+      const { data, error } = await supabase.storage.from('resources').createSignedUrl(path, 60 * 60);
+      if (error || !data?.signedUrl) throw error || new Error('No URL');
+      window.open(data.signedUrl, '_blank');
+    } catch (e) {
+      setStatus('Unable to open file. Please try again later.');
+    }
+  };
 
   const onFilterChange = (key: string, value: string) => {
     const sp = new URLSearchParams(params.toString());
@@ -155,6 +165,11 @@ function BrowseClient() {
             <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
             <div className="mt-1 font-medium text-slate-900">{r.title}</div>
             <div className="text-sm text-slate-600">{r.subjects?.name}</div>
+            {r.file_path && (
+              <div className="mt-3">
+                <button onClick={()=>openFile(r.file_path)} className="text-blue-800 underline text-sm">Open</button>
+              </div>
+            )}
           </Card>
         ))}
         {!loading && items.length===0 && <div>No results.</div>}
