@@ -18,6 +18,7 @@ function BrowseClient() {
   const [subjects, setSubjects] = useState<Array<{id:string; name:string}>>([]);
   const [deptRows, setDeptRows] = useState<Array<{id:string; code:string}>>([]);
   const [semRows, setSemRows] = useState<Array<{id:string; number:number}>>([]);
+  const [availableSubjectIds, setAvailableSubjectIds] = useState<Set<string>>(new Set());
 
   const q = params.get("q") || "";
   const [searchText, setSearchText] = useState(q);
@@ -99,6 +100,25 @@ function BrowseClient() {
     })();
   }, []);
 
+  // Load available subject IDs that have approved resources for current filters
+  useEffect(() => {
+    (async () => {
+      let rq = supabase
+        .from('resources')
+        .select('subject_id, subjects(department_id,semester_id)')
+        .eq('status','approved')
+        .limit(2000);
+      if (selectedDeptId) rq = rq.eq('subjects.department_id', selectedDeptId);
+      if (selectedSemId) rq = rq.eq('subjects.semester_id', selectedSemId);
+      if (type) rq = rq.eq('type', type);
+      const { data, error } = await rq;
+      if (error || !data) { setAvailableSubjectIds(new Set()); return; }
+      const ids = new Set<string>();
+      (data as any[]).forEach(r => { if (r.subject_id) ids.add(r.subject_id as string); });
+      setAvailableSubjectIds(ids);
+    })();
+  }, [selectedDeptId, selectedSemId, type]);
+
   const openFile = async (path: string) => {
     try {
       const { data, error } = await supabase.storage.from('resources').createSignedUrl(path, 60 * 60);
@@ -159,6 +179,7 @@ function BrowseClient() {
             {subjects
               .filter(s => (!selectedDeptId || (s as any).department_id === selectedDeptId))
               .filter(s => (!selectedSemId || (s as any).semester_id === selectedSemId))
+              .filter(s => availableSubjectIds.size === 0 || availableSubjectIds.has(s.id))
               .map(s => (
                 <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
               ))}
