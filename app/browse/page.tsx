@@ -179,7 +179,7 @@ function BrowseClient() {
             {subjects
               .filter(s => (!selectedDeptId || (s as any).department_id === selectedDeptId))
               .filter(s => (!selectedSemId || (s as any).semester_id === selectedSemId))
-              .filter(s => availableSubjectIds.size === 0 || availableSubjectIds.has(s.id))
+              .filter(s => !type || availableSubjectIds.has(s.id))
               .map(s => (
                 <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
               ))}
