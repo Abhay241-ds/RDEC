@@ -18,7 +18,7 @@ export default function UploadPage() {
   const [type, setType] = useState<string>("");
   const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
   const [selectedSemIds, setSelectedSemIds] = useState<string[]>([]);
-  const [selectedSubjectNames, setSelectedSubjectNames] = useState<string[]>([]);
+  const [selectedSubjectName, setSelectedSubjectName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [departments, setDepartments] = useState<Dept[]>([]);
   const [semesters, setSemesters] = useState<Sem[]>([]);
@@ -62,13 +62,9 @@ export default function UploadPage() {
   const onSubmit = async () => {
     setMessage(null);
     // Expand selected names to all matching subject IDs in current filtered set
-    const chosenSubjectIds = Array.from(new Set(
-      selectedSubjectNames.flatMap(name => {
-        const entry = dedupedSubjects.find(d => d.name === name);
-        return entry ? entry.ids : [];
-      })
-    ));
-    if (chosenSubjectIds.length === 0) { setMessage("Select at least one Subject."); return; }
+    const entry = dedupedSubjects.find(d => d.name === selectedSubjectName);
+    const chosenSubjectIds = Array.from(new Set(entry?.ids || []));
+    if (chosenSubjectIds.length === 0) { setMessage("Please choose a Subject."); return; }
 
     if (!file || !title || !type) {
       setMessage("Please fill Title, Type and choose a file.");
@@ -113,7 +109,7 @@ export default function UploadPage() {
     if (insErr) setMessage(`Saved file but DB insert failed: ${insErr.message}`);
     else {
       setMessage("Uploaded successfully. Waiting for admin approval.");
-      setTitle(""); setDescription(""); setType(""); setSelectedSubjectNames([]); setSelectedDeptIds([]); setSelectedSemIds([]); setFile(null);
+      setTitle(""); setDescription(""); setType(""); setSelectedSubjectName(""); setSelectedDeptIds([]); setSelectedSemIds([]); setFile(null);
     }
   };
 
@@ -136,7 +132,7 @@ export default function UploadPage() {
                   {departments.map(d=> (
                     <label key={d.id} className="flex items-center gap-2 text-sm">
                       <input type="checkbox" checked={selectedDeptIds.includes(d.id)} onChange={(e)=>{
-                        setSelectedSubjectNames([]);
+                        setSelectedSubjectName("");
                         setSelectedDeptIds(prev=> e.target.checked ? [...prev, d.id] : prev.filter(x=>x!==d.id));
                       }} />
                       <span>{d.code}</span>
@@ -150,7 +146,7 @@ export default function UploadPage() {
                   {semesters.map(s=> (
                     <label key={s.id} className="flex items-center gap-2 text-sm">
                       <input type="checkbox" checked={selectedSemIds.includes(s.id)} onChange={(e)=>{
-                        setSelectedSubjectNames([]);
+                        setSelectedSubjectName("");
                         setSelectedSemIds(prev=> e.target.checked ? [...prev, s.id] : prev.filter(x=>x!==s.id));
                       }} />
                       <span>{s.number}</span>
@@ -161,19 +157,14 @@ export default function UploadPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-md border p-2">
-                <div className="text-xs font-medium text-slate-600 mb-1">Subjects</div>
-                <div className="grid grid-cols-1 gap-1 max-h-40 overflow-auto">
+              <Select value={selectedSubjectName} onValueChange={setSelectedSubjectName}>
+                <SelectTrigger><SelectValue placeholder="Subject" /></SelectTrigger>
+                <SelectContent>
                   {dedupedSubjects.map(d=> (
-                    <label key={d.name} className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" checked={selectedSubjectNames.includes(d.name)} onChange={(e)=>{
-                        setSelectedSubjectNames(prev=> e.target.checked ? [...prev, d.name] : prev.filter(x=>x!==d.name));
-                      }} />
-                      <span>{d.name}</span>
-                    </label>
+                    <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>
                   ))}
-                </div>
-              </div>
+                </SelectContent>
+              </Select>
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
                 <SelectContent>
