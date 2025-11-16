@@ -70,6 +70,13 @@ export default function UploadPage() {
       setMessage("Please fill Title, Type and choose a file.");
       return;
     }
+
+    // Enforce 5 MB max file size
+    const maxBytes = 5 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      setMessage("File is too large. Maximum allowed size is 5 MB.");
+      return;
+    }
     setLoading(true);
 
     const { data: userData } = await supabase.auth.getUser();
@@ -176,7 +183,7 @@ export default function UploadPage() {
             <div>
               <label className="text-sm text-slate-600">File</label>
               <input type="file" className="mt-1 block w-full text-sm" onChange={(e)=>setFile(e.target.files?.[0] || null)} />
-              <p className="text-xs text-slate-500 mt-1">Allowed: PDF, PPTX, DOCX, ZIP. Max 25MB (configurable).</p>
+              <p className="text-xs text-slate-500 mt-1">Allowed: PDF, PPTX, DOCX, ZIP. Max 5MB.</p>
             </div>
             <Button type="button" className="bg-blue-800 text-white" disabled={loading} onClick={onSubmit}>{loading? "Uploading..." : "Submit"}</Button>
             {message && <p className="text-sm">{message}</p>}
