@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
@@ -130,7 +129,6 @@ export default function UploadPage() {
           <p className="text-slate-600 text-sm">Students, Faculty, and Admin can upload. All uploads require Admin approval before they appear publicly.</p>
           <div className="grid gap-4 mt-4">
             <Input className="px-3 py-2" placeholder="Title" value={title} onChange={e=>setTitle(e.target.value)} />
-            <Textarea className="px-3 py-2" placeholder="Description" value={description} onChange={e=>setDescription(e.target.value)} />
 
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-md border p-2">
