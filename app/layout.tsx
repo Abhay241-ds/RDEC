@@ -29,7 +29,11 @@ export default function RootLayout({
         <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <a href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 grid place-items-center rounded-md bg-blue-800 text-white font-bold">RD</div>
+              <img
+                src="/logo.png"
+                alt="R. D. Engineering College logo"
+                className="w-9 h-9 rounded-md object-cover"
+              />
               <div className="leading-tight">
                 <div className="font-semibold text-slate-900">R. D. Engineering College</div>
                 <div className="text-xs text-slate-500">Notes • PYQ Portal</div>
