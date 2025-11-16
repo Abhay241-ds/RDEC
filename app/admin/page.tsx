@@ -78,6 +78,7 @@ export default function AdminPage(){
   };
 
   const deleteResource = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this resource?")) return;
     setStatus(null);
     const { error } = await supabase.from("resources").delete().eq("id", id);
     if (error) { setStatus(error.message); return; }
