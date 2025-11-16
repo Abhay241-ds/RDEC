@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function AdminPage(){
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [items, setItems] = useState<any[]>([]);
+  const [approvedItems, setApprovedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -26,6 +27,18 @@ export default function AdminPage(){
     setLoading(false);
   };
 
+  const loadApproved = async () => {
+    let query = supabase
+      .from("resources")
+      .select("id,title,type,created_at,file_path,subjects(name)")
+      .eq("status","approved")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (typeFilter !== 'all') query = query.eq('type', typeFilter);
+    const { data: res } = await query;
+    setApprovedItems(res || []);
+  };
+
   useEffect(()=>{
     (async ()=>{
       setStatus(null);
@@ -35,7 +48,10 @@ export default function AdminPage(){
       const { data: prof } = await supabase.from("profiles").select("role").eq("id", uid).maybeSingle();
       const admin = prof?.role === "admin";
       setIsAdmin(admin);
-      if (admin) load();
+      if (admin) {
+        load();
+        loadApproved();
+      }
       else setStatus("Admin access only.");
     })();
   },[typeFilter]);
@@ -93,6 +109,23 @@ export default function AdminPage(){
               {r.file_path && <Button variant="secondary" size="sm" onClick={()=>openFile(r.file_path)}>Open</Button>}
               <Button size="sm" onClick={()=>decide(r.id,"approved")}>Approve</Button>
               <Button size="sm" variant="secondary" onClick={()=>decide(r.id,"rejected")}>Reject</Button>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <h2 className="mt-10 text-xl font-semibold text-slate-900">Approved Resources</h2>
+      <div className="mt-2 text-sm text-slate-600">Use Delete to remove items from browse.</div>
+      <div className="mt-4 grid gap-4">
+        {approvedItems.length===0 && <div>No approved items for this filter.</div>}
+        {approvedItems.map(r => (
+          <Card key={r.id} className="p-4">
+            <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
+            <div className="mt-1 font-medium text-slate-900">{r.title}</div>
+            <div className="text-sm text-slate-600">{r.subjects?.name}</div>
+            <div className="mt-3 flex gap-2">
+              {r.file_path && <Button variant="secondary" size="sm" onClick={()=>openFile(r.file_path)}>Open</Button>}
+              <Button size="sm" variant="destructive" onClick={()=>deleteResource(r.id)}>Delete</Button>
             </div>
           </Card>
         ))}
