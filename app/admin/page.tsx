@@ -77,9 +77,15 @@ export default function AdminPage(){
     }
   };
 
-  const deleteResource = async (id: string) => {
+  const deleteResource = async (id: string, path: string | null) => {
     if (!window.confirm("Are you sure you want to delete this resource?")) return;
     setStatus(null);
+
+    if (path) {
+      const { error: storageError } = await supabase.storage.from("resources").remove([path]);
+      if (storageError) { setStatus(storageError.message); return; }
+    }
+
     const { error } = await supabase.from("resources").delete().eq("id", id);
     if (error) { setStatus(error.message); return; }
     setApprovedItems(prev => prev.filter(x => x.id !== id));
@@ -133,7 +139,7 @@ export default function AdminPage(){
             <div className="text-sm text-slate-600">{r.subjects?.name}</div>
             <div className="mt-3 flex gap-2">
               {r.file_path && <Button variant="secondary" size="sm" onClick={()=>openFile(r.file_path)}>Open</Button>}
-              <Button size="sm" variant="destructive" onClick={()=>deleteResource(r.id)}>Delete</Button>
+              <Button size="sm" variant="destructive" onClick={()=>deleteResource(r.id, r.file_path)}>Delete</Button>
             </div>
           </Card>
         ))}
