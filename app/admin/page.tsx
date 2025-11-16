@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export default function AdminPage(){
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<any[]>([]); // pending groups
   const [approvedItems, setApprovedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -23,7 +23,29 @@ export default function AdminPage(){
       .order("created_at", { ascending: true });
     if (typeFilter !== 'all') query = query.eq('type', typeFilter);
     const { data: res } = await query;
-    setItems(res || []);
+
+    const rows = (res || []) as any[];
+    const byFile = new Map<string, { file_path: string; title: string; type: string; ids: string[]; subjectNames: string[] }>();
+    for (const r of rows) {
+      const key = r.file_path || r.id;
+      let group = byFile.get(key);
+      if (!group) {
+        group = {
+          file_path: r.file_path,
+          title: r.title,
+          type: r.type,
+          ids: [],
+          subjectNames: [],
+        };
+        byFile.set(key, group);
+      }
+      if (r.id) group.ids.push(r.id);
+      const subjName = r.subjects?.name as string | undefined;
+      if (subjName && !group.subjectNames.includes(subjName)) {
+        group.subjectNames.push(subjName);
+      }
+    }
+    setItems(Array.from(byFile.values()));
     setLoading(false);
   };
 
@@ -56,15 +78,23 @@ export default function AdminPage(){
     })();
   },[typeFilter]);
 
-  const decide = async (id: string, decision: "approved"|"rejected") => {
+  const decide = async (filePath: string, ids: string[], decision: "approved"|"rejected") => {
     setStatus(null);
     const { data: user } = await supabase.auth.getUser();
     const uid = user.user?.id;
     if(!uid){ setStatus("Not signed in."); return; }
-    const { error: updErr } = await supabase.from("resources").update({ status: decision }).eq("id", id);
+    const { error: updErr } = await supabase
+      .from("resources")
+      .update({ status: decision })
+      .eq("file_path", filePath)
+      .eq("status","pending");
     if (updErr){ setStatus(updErr.message); return; }
-    await supabase.from("approvals").insert({ resource_id: id, reviewer_id: uid, decision });
-    setItems(prev => prev.filter(x=>x.id!==id));
+    if (ids.length > 0) {
+      await supabase.from("approvals").insert(
+        ids.map(id => ({ resource_id: id, reviewer_id: uid, decision }))
+      );
+    }
+    setItems(prev => prev.filter(x=>x.file_path !== filePath));
   };
 
   const openFile = async (path: string) => {
@@ -115,14 +145,16 @@ export default function AdminPage(){
         {loading && <div>Loading...</div>}
         {!loading && items.length===0 && <div>No pending items.</div>}
         {!loading && items.map((r)=> (
-          <Card key={r.id} className="p-4">
+          <Card key={r.file_path || r.title} className="p-4">
             <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
             <div className="mt-1 font-medium text-slate-900">{r.title}</div>
-            <div className="text-sm text-slate-600">{r.subjects?.name}</div>
-            <div className="mt-3 flex gap-2">
+            <div className="text-sm text-slate-600">
+              {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
               {r.file_path && <Button variant="secondary" size="sm" onClick={()=>openFile(r.file_path)}>Open</Button>}
-              <Button size="sm" onClick={()=>decide(r.id,"approved")}>Approve</Button>
-              <Button size="sm" variant="secondary" onClick={()=>decide(r.id,"rejected")}>Reject</Button>
+              <Button size="sm" onClick={()=>decide(r.file_path, r.ids, "approved")}>Approve</Button>
+              <Button size="sm" variant="secondary" onClick={()=>decide(r.file_path, r.ids, "rejected")}>Reject</Button>
             </div>
           </Card>
         ))}
