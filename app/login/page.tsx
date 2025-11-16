@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,10 +9,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [code, setCode] = useState("");
-  const [phase, setPhase] = useState<"enterEmail" | "enterCode">("enterEmail");
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     let mounted = true;
@@ -39,37 +34,15 @@ export default function LoginPage() {
     };
   }, []);
 
-  const sendCode = async () => {
+  const sendLink = async () => {
     setStatus(null);
-    setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({
       email,
+      options: {
+        emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/account` : undefined,
+      },
     });
-    setLoading(false);
-    if (error) setStatus(error.message);
-    else {
-      setStatus("We sent a 6-digit code to your email.");
-      setPhase("enterCode");
-    }
-  };
-
-  const verifyCode = async () => {
-    setStatus(null);
-    setLoading(true);
-    const { data, error } = await supabase.auth.verifyOtp({
-      email,
-      token: code,
-      type: "email",
-    });
-    setLoading(false);
-    if (error) {
-      setStatus(error.message);
-    } else {
-      setStatus("Logged in successfully.");
-      if (data.session) {
-        router.push("/account");
-      }
-    }
+    if (error) setStatus(error.message); else setStatus("Check your email for the login link.");
   };
 
   const signOut = async () => {
@@ -83,30 +56,8 @@ export default function LoginPage() {
         <h1 className="text-xl font-bold text-slate-900">{userEmail ? "Account" : "Login"}</h1>
         {!userEmail ? (
           <div className="mt-6 grid gap-3">
-            <Input
-              placeholder="College email"
-              type="email"
-              value={email}
-              onChange={(e)=>setEmail(e.target.value)}
-              disabled={phase === "enterCode" || loading}
-            />
-            {phase === "enterCode" && (
-              <Input
-                placeholder="Enter 6-digit code"
-                value={code}
-                onChange={(e)=>setCode(e.target.value)}
-                maxLength={6}
-              />
-            )}
-            {phase === "enterEmail" ? (
-              <Button onClick={sendCode} disabled={!email || loading}>
-                {loading ? "Sending..." : "Send code"}
-              </Button>
-            ) : (
-              <Button onClick={verifyCode} disabled={!code || loading}>
-                {loading ? "Verifying..." : "Verify code"}
-              </Button>
-            )}
+            <Input placeholder="College email" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} />
+            <Button onClick={sendLink}>Send login link</Button>
             {status && <p className="text-sm">{status}</p>}
           </div>
         ) : (
