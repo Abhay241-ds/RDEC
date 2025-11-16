@@ -83,6 +83,13 @@ export default function AdminPage(){
     const { data: user } = await supabase.auth.getUser();
     const uid = user.user?.id;
     if(!uid){ setStatus("Not signed in."); return; }
+
+    // If rejecting, also remove the underlying file from storage so only approved files remain
+    if (decision === "rejected" && filePath) {
+      const { error: storageError } = await supabase.storage.from("resources").remove([filePath]);
+      if (storageError) { setStatus(storageError.message); return; }
+    }
+
     const { error: updErr } = await supabase
       .from("resources")
       .update({ status: decision })
