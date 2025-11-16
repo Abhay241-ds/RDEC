@@ -77,6 +77,13 @@ export default function AdminPage(){
     }
   };
 
+  const deleteResource = async (id: string) => {
+    setStatus(null);
+    const { error } = await supabase.from("resources").delete().eq("id", id);
+    if (error) { setStatus(error.message); return; }
+    setApprovedItems(prev => prev.filter(x => x.id !== id));
+  };
+
   if(isAdmin === null) return <div className="max-w-5xl mx-auto px-4 py-8">Checking permissions...</div>;
   if(!isAdmin) return <div className="max-w-5xl mx-auto px-4 py-8">{status || "Admin access only."}</div>;
 
