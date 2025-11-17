@@ -28,23 +28,32 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-slate-800`}>
         <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <a href="/" className="flex items-center gap-2">
-              <img
-                src="/logo.png"
-                alt="R. D. Engineering College logo"
-                className="w-9 h-9 rounded-md object-cover"
-              />
-              <div className="leading-tight">
-                <div className="font-semibold text-slate-900">R. D. Engineering College</div>
-                <div className="text-xs text-slate-500">Notes • PYQ Portal</div>
-              </div>
-            </a>
-            <nav className="hidden md:flex items-center gap-6 text-sm">
+            {/* Left: Logo */}
+            <div className="flex items-center">
+              <a href="/" className="flex items-center gap-2">
+                <img
+                  src="/logo.png"
+                  alt="R. D. Engineering College logo"
+                  className="w-9 h-9 rounded-md object-cover"
+                />
+                <div className="leading-tight">
+                  <div className="font-semibold text-slate-900">R. D. Engineering College</div>
+                  <div className="text-xs text-slate-500">Notes • PYQ Portal</div>
+                </div>
+              </a>
+            </div>
+
+            {/* Center: main nav */}
+            <nav className="hidden md:flex flex-1 justify-center items-center gap-6 text-sm">
               <a className="hover:text-blue-800" href="/browse">Browse</a>
               <a className="hover:text-blue-800" href="/upload">Upload</a>
               <a className="hover:text-blue-800" href="/login">Login</a>
-              <a className="hover:text-blue-800" href="/admin">Admin</a>
             </nav>
+
+            {/* Right: Admin link */}
+            <div className="hidden md:flex items-center">
+              <a className="text-sm hover:text-blue-800" href="/admin">Admin</a>
+            </div>
           </div>
         </header>
         <main>{children}</main>
