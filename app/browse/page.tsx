@@ -38,6 +38,15 @@ function BrowseClient() {
   const fetchData = async () => {
     setLoading(true);
     setStatus(null);
+
+    // Require all filters (dept, sem, type, subject) before showing any resources
+    const hasAllFilters = !!dept && !!sem && !!type && !!sub && !!selectedDeptId && !!selectedSemId;
+    if (!hasAllFilters) {
+      setItems([]);
+      setStatus("Please select Department, Semester, Type and Subject to view resources.");
+      setLoading(false);
+      return;
+    }
     let query = supabase
       .from("resources")
       .select("id,title,type,created_at,file_path,subject_id,subjects(name,semester_id,department_id)")
@@ -231,7 +240,7 @@ function BrowseClient() {
             )}
           </Card>
         ))}
-        {!loading && items.length===0 && (
+        {!loading && items.length===0 && !!dept && !!sem && !!type && !!sub && (
           <div className="text-sm text-slate-600">no selected resource is available</div>
         )}
       </div>
