@@ -53,7 +53,8 @@ export default function LoginPage() {
   return (
     <div className="grid min-h-[60vh] place-items-center px-4">
       <div className="w-full max-w-sm p-6 rounded-xl border bg-white">
-        <h1 className="text-xl font-bold text-slate-900">{userEmail ? "Account" : "Login"}</h1>
+        <a href="/" className="text-blue-800">← Home</a>
+        <h1 className="mt-4 text-xl font-bold text-slate-900">{userEmail ? "Account" : "Login"}</h1>
         {!userEmail ? (
           <div className="mt-6 grid gap-3">
             <Input placeholder="College email" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} />

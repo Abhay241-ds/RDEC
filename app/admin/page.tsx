@@ -190,7 +190,8 @@ export default function AdminPage(){
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-slate-900">Pending Approvals</h1>
+      <a href="/" className="text-blue-800">← Home</a>
+      <h1 className="mt-4 text-2xl font-bold text-slate-900">Pending Approvals</h1>
       {status && <p className="mt-2 text-sm text-emerald-700">{status}</p>}
       <div className="mt-4 flex items-center gap-3">
         <Select value={typeFilter} onValueChange={setTypeFilter}>
