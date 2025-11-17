@@ -20,14 +20,14 @@ export default function AdminPage(){
     setLoading(true);
     let query = supabase
       .from("resources")
-      .select("id,title,type,created_at,file_path,subjects(name)")
+      .select("id,title,type,created_at,file_path,subjects(name,department_id,semester_id)")
       .eq("status","pending")
       .order("created_at", { ascending: true });
     if (typeFilter !== 'all') query = query.eq('type', typeFilter);
     const { data: res } = await query;
 
     const rows = (res || []) as any[];
-    const byFile = new Map<string, { file_path: string; title: string; type: string; created_at: string; ids: string[]; subjectNames: string[] }>();
+    const byFile = new Map<string, { file_path: string; title: string; type: string; created_at: string; ids: string[]; subjectNames: string[]; departmentIds: string[]; semesterIds: string[] }>();
     for (const r of rows) {
       const key = r.file_path || r.id;
       let group = byFile.get(key);
@@ -39,6 +39,8 @@ export default function AdminPage(){
           created_at: r.created_at,
           ids: [],
           subjectNames: [],
+          departmentIds: [],
+          semesterIds: [],
         };
         byFile.set(key, group);
       }
@@ -46,6 +48,14 @@ export default function AdminPage(){
       const subjName = r.subjects?.name as string | undefined;
       if (subjName && !group.subjectNames.includes(subjName)) {
         group.subjectNames.push(subjName);
+      }
+      const deptId = (r.subjects as any)?.department_id as string | undefined;
+      if (deptId && !group.departmentIds.includes(deptId)) {
+        group.departmentIds.push(deptId);
+      }
+      const semId = (r.subjects as any)?.semester_id as string | undefined;
+      if (semId && !group.semesterIds.includes(semId)) {
+        group.semesterIds.push(semId);
       }
     }
     setItems(Array.from(byFile.values()));
@@ -193,17 +203,35 @@ export default function AdminPage(){
         </Select>
         <Button variant="secondary" size="sm" onClick={load}>Refresh</Button>
       </div>
-      <div className="mt-6 grid gap-4">
+      <div className="mt-6 grid gap-3">
         {loading && <div>Loading...</div>}
         {!loading && items.length===0 && <div>No pending items.</div>}
         {!loading && items.map((r)=> (
-          <Card key={r.file_path || r.title} className="p-4">
-            <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
-            <div className="mt-1 font-medium text-slate-900">{r.title}</div>
-            <div className="text-xs text-slate-500">
+          <Card key={r.file_path || r.title} className="p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="text-[11px] text-blue-800 font-semibold uppercase">{r.type}</div>
+              <div className="text-right text-[10px] text-slate-500 leading-tight">
+                {(() => {
+                  const deptCodes = deptRows
+                    .filter(d => (r.departmentIds || []).includes(d.id))
+                    .map(d => d.code);
+                  const semLabels = semRows
+                    .filter(s => (r.semesterIds || []).includes(s.id))
+                    .map(s => `Sem ${s.number}`);
+                  return (
+                    <>
+                      {deptCodes.length > 0 && <div>{deptCodes.join(', ')}</div>}
+                      {semLabels.length > 0 && <div>{semLabels.join(', ')}</div>}
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+            <div className="mt-1 text-sm font-medium text-slate-900">{r.title}</div>
+            <div className="text-[11px] text-slate-500">
               {r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}
             </div>
-            <div className="mt-1 text-sm text-slate-600">
+            <div className="mt-1 text-xs text-slate-600">
               {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -217,13 +245,13 @@ export default function AdminPage(){
 
       <h2 className="mt-10 text-xl font-semibold text-slate-900">Approved Resources</h2>
       <div className="mt-2 text-sm text-slate-600">Use Delete to remove all records for a file from browse.</div>
-      <div className="mt-4 grid gap-4">
+      <div className="mt-4 grid gap-3">
         {approvedItems.length===0 && <div>No approved items for this filter.</div>}
         {approvedItems.map(r => (
-          <Card key={r.file_path || r.title} className="p-4">
+          <Card key={r.file_path || r.title} className="p-3">
             <div className="flex items-start justify-between gap-2">
-              <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
-              <div className="text-right text-[11px] text-slate-500 leading-tight">
+              <div className="text-[11px] text-blue-800 font-semibold uppercase">{r.type}</div>
+              <div className="text-right text-[10px] text-slate-500 leading-tight">
                 {(() => {
                   const deptCodes = deptRows
                     .filter(d => (r.departmentIds || []).includes(d.id))
