@@ -245,6 +245,9 @@ export default function AdminPage(){
 
       <h2 className="mt-10 text-xl font-semibold text-slate-900">Approved Resources</h2>
       <div className="mt-2 text-sm text-slate-600">Use Delete to remove all records for a file from browse.</div>
+      <div className="mt-1 text-xs text-slate-500">
+        Types: <span className="font-medium">notes</span> (Notes), <span className="font-medium">pyq</span> (Previous Year Question), <span className="font-medium">syllabus</span> (Syllabus), <span className="font-medium">lab</span> (Lab Manual)
+      </div>
       <div className="mt-4 grid gap-3">
         {approvedItems.length===0 && <div>No approved items for this filter.</div>}
         {approvedItems.map(r => (
