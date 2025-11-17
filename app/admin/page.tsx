@@ -203,12 +203,12 @@ export default function AdminPage(){
         </Select>
         <Button variant="secondary" size="sm" onClick={load}>Refresh</Button>
       </div>
-      <div className="mt-6 grid gap-2">
+      <div className="mt-6 grid gap-3">
         {loading && <div>Loading...</div>}
         {!loading && items.length===0 && <div>No pending items.</div>}
         {!loading && items.map((r)=> (
-          <Card key={r.file_path || r.title} className="p-2">
-            <div className="flex items-start justify-between gap-1.5">
+          <Card key={r.file_path || r.title} className="p-3">
+            <div className="flex items-start justify-between gap-2">
               <div className="text-sm text-blue-800 font-semibold uppercase leading-tight">{r.type}</div>
               <div className="text-right text-xs text-slate-500 leading-tight">
                 {(() => {
@@ -227,14 +227,14 @@ export default function AdminPage(){
                 })()}
               </div>
             </div>
-            <div className="mt-0.5 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
-            <div className="text-xs text-slate-500 mt-0.5 leading-tight">
-              {r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}
+            <div className="mt-6 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
+            <div className="mt-6 text-xs text-slate-500 leading-tight">
+              {r.created_at ? `date of uploading - ${new Date(r.created_at).toLocaleDateString()}` : ""}
             </div>
-            <div className="mt-0.5 text-lg text-slate-600 leading-tight">
+            <div className="mt-6 text-lg text-slate-600 leading-tight">
               {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
             </div>
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <div className="mt-6 flex flex-wrap gap-2">
               {r.file_path && <Button variant="secondary" size="sm" onClick={()=>openFile(r.file_path)}>Open</Button>}
               <Button size="sm" onClick={()=>decide(r.file_path, r.ids, "approved")}>Approve</Button>
               <Button size="sm" variant="secondary" onClick={()=>decide(r.file_path, r.ids, "rejected")}>Reject</Button>
@@ -245,10 +245,10 @@ export default function AdminPage(){
 
       <h2 className="mt-10 text-xl font-semibold text-slate-900">Approved Resources</h2>
       <div className="mt-2 text-sm text-slate-600">Use Delete to remove all records for a file from browse.</div>
-      <div className="mt-4 grid gap-2">
+      <div className="mt-4 grid gap-3">
         {approvedItems.length===0 && <div>No approved items for this filter.</div>}
         {approvedItems.map(r => (
-          <Card key={r.file_path || r.title} className="p-2.5">
+          <Card key={r.file_path || r.title} className="p-3">
             <div className="flex items-start justify-between gap-2">
               <div className="text-sm text-blue-800 font-semibold uppercase">{r.type}</div>
               <div className="text-right text-sm text-slate-500 leading-tight">
@@ -268,14 +268,14 @@ export default function AdminPage(){
                 })()}
               </div>
             </div>
-            <div className="mt-0.5 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
-            <div className="text-xs text-slate-500 leading-tight">
-              {r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}
+            <div className="mt-6 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
+            <div className="mt-6 text-xs text-slate-500 leading-tight">
+              {r.created_at ? `date of uploading - ${new Date(r.created_at).toLocaleDateString()}` : ""}
             </div>
-            <div className="mt-0.5 text-lg text-slate-600 leading-tight">
+            <div className="mt-6 text-lg text-slate-600 leading-tight">
               {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
             </div>
-            <div className="mt-1 flex gap-1.5">
+            <div className="mt-6 flex gap-2">
               {r.file_path && <Button variant="secondary" size="sm" onClick={()=>openFile(r.file_path)}>Open</Button>}
               <Button size="sm" variant="destructive" onClick={()=>deleteResource(r.file_path)}>Delete</Button>
             </div>

@@ -215,17 +215,17 @@ function BrowseClient() {
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {loading && <div>Loading...</div>}
         {!loading && items.map((r)=> (
-          <Card key={r.file_path || r.title} className="p-2.5">
+          <Card key={r.file_path || r.title} className="p-3">
             <div className="text-sm text-blue-800 font-semibold uppercase">{r.type}</div>
-            <div className="mt-0.5 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
-            <div className="text-xs text-slate-500 mt-0.5 leading-tight">
-              {r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}
+            <div className="mt-6 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
+            <div className="mt-6 text-xs text-slate-500 leading-tight">
+              {r.created_at ? `date of uploading - ${new Date(r.created_at).toLocaleDateString()}` : ""}
             </div>
-            <div className="mt-0.5 text-lg text-slate-600 leading-tight">
+            <div className="mt-6 text-lg text-slate-600 leading-tight">
               {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
             </div>
             {r.file_path && (
-              <div className="mt-1.5">
+              <div className="mt-6">
                 <button onClick={()=>openFile(r.file_path)} className="text-blue-800 underline text-base">Open</button>
               </div>
             )}
