@@ -25,7 +25,7 @@ export default function AdminPage(){
     const { data: res } = await query;
 
     const rows = (res || []) as any[];
-    const byFile = new Map<string, { file_path: string; title: string; type: string; ids: string[]; subjectNames: string[] }>();
+    const byFile = new Map<string, { file_path: string; title: string; type: string; created_at: string; ids: string[]; subjectNames: string[] }>();
     for (const r of rows) {
       const key = r.file_path || r.id;
       let group = byFile.get(key);
@@ -34,6 +34,7 @@ export default function AdminPage(){
           file_path: r.file_path,
           title: r.title,
           type: r.type,
+          created_at: r.created_at,
           ids: [],
           subjectNames: [],
         };
@@ -58,7 +59,27 @@ export default function AdminPage(){
       .limit(50);
     if (typeFilter !== 'all') query = query.eq('type', typeFilter);
     const { data: res } = await query;
-    setApprovedItems(res || []);
+    const rows = (res || []) as any[];
+    const byFile = new Map<string, { file_path: string; title: string; type: string; created_at: string; subjectNames: string[] }>();
+    for (const r of rows) {
+      const key = r.file_path || r.id;
+      let group = byFile.get(key);
+      if (!group) {
+        group = {
+          file_path: r.file_path,
+          title: r.title,
+          type: r.type,
+          created_at: r.created_at,
+          subjectNames: [],
+        };
+        byFile.set(key, group);
+      }
+      const subjName = r.subjects?.name as string | undefined;
+      if (subjName && !group.subjectNames.includes(subjName)) {
+        group.subjectNames.push(subjName);
+      }
+    }
+    setApprovedItems(Array.from(byFile.values()));
   };
 
   useEffect(()=>{
@@ -114,8 +135,8 @@ export default function AdminPage(){
     }
   };
 
-  const deleteResource = async (id: string, path: string | null) => {
-    if (!window.confirm("Are you sure you want to delete this resource?")) return;
+  const deleteResource = async (path: string | null) => {
+    if (!window.confirm("Are you sure you want to delete this file and all its associated resources?")) return;
     setStatus(null);
 
     if (path) {
@@ -123,9 +144,9 @@ export default function AdminPage(){
       if (storageError) { setStatus(storageError.message); return; }
     }
 
-    const { error } = await supabase.from("resources").delete().eq("id", id);
+    const { error } = await supabase.from("resources").delete().eq("file_path", path).eq("status","approved");
     if (error) { setStatus(error.message); return; }
-    setApprovedItems(prev => prev.filter(x => x.id !== id));
+    setApprovedItems(prev => prev.filter(x => x.file_path !== path));
   };
 
   if(isAdmin === null) return <div className="max-w-5xl mx-auto px-4 py-8">Checking permissions...</div>;
@@ -155,7 +176,10 @@ export default function AdminPage(){
           <Card key={r.file_path || r.title} className="p-4">
             <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
             <div className="mt-1 font-medium text-slate-900">{r.title}</div>
-            <div className="text-sm text-slate-600">
+            <div className="text-xs text-slate-500">
+              {r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}
+            </div>
+            <div className="mt-1 text-sm text-slate-600">
               {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -168,17 +192,22 @@ export default function AdminPage(){
       </div>
 
       <h2 className="mt-10 text-xl font-semibold text-slate-900">Approved Resources</h2>
-      <div className="mt-2 text-sm text-slate-600">Use Delete to remove items from browse.</div>
+      <div className="mt-2 text-sm text-slate-600">Use Delete to remove all records for a file from browse.</div>
       <div className="mt-4 grid gap-4">
         {approvedItems.length===0 && <div>No approved items for this filter.</div>}
         {approvedItems.map(r => (
-          <Card key={r.id} className="p-4">
+          <Card key={r.file_path || r.title} className="p-4">
             <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
             <div className="mt-1 font-medium text-slate-900">{r.title}</div>
-            <div className="text-sm text-slate-600">{r.subjects?.name}</div>
+            <div className="text-xs text-slate-500">
+              {r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}
+            </div>
+            <div className="mt-1 text-sm text-slate-600">
+              {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
+            </div>
             <div className="mt-3 flex gap-2">
               {r.file_path && <Button variant="secondary" size="sm" onClick={()=>openFile(r.file_path)}>Open</Button>}
-              <Button size="sm" variant="destructive" onClick={()=>deleteResource(r.id, r.file_path)}>Delete</Button>
+              <Button size="sm" variant="destructive" onClick={()=>deleteResource(r.file_path)}>Delete</Button>
             </div>
           </Card>
         ))}

@@ -215,7 +215,10 @@ function BrowseClient() {
           <Card key={r.file_path || r.title} className="p-4">
             <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
             <div className="mt-1 font-medium text-slate-900">{r.title}</div>
-            <div className="text-sm text-slate-600">
+            <div className="text-xs text-slate-500">
+              {r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}
+            </div>
+            <div className="mt-1 text-sm text-slate-600">
               {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
             </div>
             {r.file_path && (
