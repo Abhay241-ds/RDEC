@@ -210,7 +210,7 @@ export default function AdminPage(){
           <Card key={r.file_path || r.title} className="p-3">
             <div className="flex items-start justify-between gap-2">
               <div className="text-[11px] text-blue-800 font-semibold uppercase">{r.type}</div>
-              <div className="text-right text-[10px] text-slate-500 leading-tight">
+              <div className="text-right text-xs text-slate-500 leading-tight">
                 {(() => {
                   const deptCodes = deptRows
                     .filter(d => (r.departmentIds || []).includes(d.id))
@@ -251,7 +251,7 @@ export default function AdminPage(){
           <Card key={r.file_path || r.title} className="p-3">
             <div className="flex items-start justify-between gap-2">
               <div className="text-[11px] text-blue-800 font-semibold uppercase">{r.type}</div>
-              <div className="text-right text-[10px] text-slate-500 leading-tight">
+              <div className="text-right text-xs text-slate-500 leading-tight">
                 {(() => {
                   const deptCodes = deptRows
                     .filter(d => (r.departmentIds || []).includes(d.id))
