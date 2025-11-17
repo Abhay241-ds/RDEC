@@ -35,6 +35,12 @@ function BrowseClient() {
   const selectedDeptId = deptRows.find(d=> d.code === dept)?.id;
   const selectedSemId = semRows.find(s=> String(s.number) === sem)?.id;
 
+  // Subjects that match the current Dept/Sem/Type filters
+  const filteredSubjects = subjects
+    .filter(s => (!selectedDeptId || (s as any).department_id === selectedDeptId))
+    .filter(s => (!selectedSemId || (s as any).semester_id === selectedSemId))
+    .filter(s => !type || availableSubjectIds.has(s.id));
+
   const fetchData = async () => {
     setLoading(true);
     setStatus(null);
@@ -168,10 +174,7 @@ function BrowseClient() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold text-slate-900 flex flex-wrap items-baseline gap-2">
-        <span>Browse Resources</span>
-        <span className="text-sm font-normal text-slate-500">(please fill all mentioned fields)</span>
-      </h1>
+      <h1 className="text-2xl font-bold text-slate-900">Browse Resources</h1>
       {status && <div className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">{status}</div>}
 
       <div className="mt-6 grid sm:grid-cols-5 gap-3">
@@ -206,19 +209,22 @@ function BrowseClient() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={subValue} onValueChange={(v)=>onFilterChange('sub', v === 'all' ? '' : v)}>
-          <SelectTrigger><SelectValue placeholder="Subject" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Subjects</SelectItem>
-            {subjects
-              .filter(s => (!selectedDeptId || (s as any).department_id === selectedDeptId))
-              .filter(s => (!selectedSemId || (s as any).semester_id === selectedSemId))
-              .filter(s => !type || availableSubjectIds.has(s.id))
-              .map(s => (
+        <div className="flex flex-col gap-1">
+          <Select value={subValue} onValueChange={(v)=>onFilterChange('sub', v === 'all' ? '' : v)}>
+            <SelectTrigger><SelectValue placeholder="Subject" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Subjects</SelectItem>
+              {filteredSubjects.map(s => (
                 <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
               ))}
-          </SelectContent>
-        </Select>
+            </SelectContent>
+          </Select>
+          {!!dept && !!sem && !!type && filteredSubjects.length === 0 && (
+            <div className="text-xs text-slate-500">
+              resource is not available please try to upload what you looking on and wait for admin approval
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
