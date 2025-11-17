@@ -219,13 +219,14 @@ function BrowseClient() {
               ))}
             </SelectContent>
           </Select>
-          {!!dept && !!sem && !!type && filteredSubjects.length === 0 && (
-            <div className="text-xs text-slate-500">
-              resource is not available please try to upload what you looking on and wait for admin approval
-            </div>
-          )}
         </div>
       </div>
+
+      {!!dept && !!sem && !!type && filteredSubjects.length === 0 && (
+        <div className="mt-1 text-sm text-red-900">
+          resource unavailable. please try to upload and wait for admin approval.
+        </div>
+      )}
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {loading && <div>Loading...</div>}
