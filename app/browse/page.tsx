@@ -13,7 +13,7 @@ function BrowseClient() {
   const params = useSearchParams();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<any[]>([]); // grouped by file_path
   const [status, setStatus] = useState<string | null>(null);
   const [subjects, setSubjects] = useState<Array<{id:string; name:string}>>([]);
   const [deptRows, setDeptRows] = useState<Array<{id:string; code:string}>>([]);
@@ -59,10 +59,32 @@ function BrowseClient() {
       const { data, error } = await query;
       if (error) throw error;
       if (data) {
-        setItems(data as any[]);
+        const rows = data as any[];
+        // Group results by file_path so a single file appears once even if linked to many subjects
+        const byFile = new Map<string, { file_path: string | null; title: string; type: string; created_at: string; subjectNames: string[] }>();
+        for (const r of rows) {
+          const key = r.file_path || r.id;
+          let group = byFile.get(key);
+          if (!group) {
+            group = {
+              file_path: r.file_path,
+              title: r.title,
+              type: r.type,
+              created_at: r.created_at,
+              subjectNames: [],
+            };
+            byFile.set(key, group);
+          }
+          const subjName = r.subjects?.name as string | undefined;
+          if (subjName && !group.subjectNames.includes(subjName)) {
+            group.subjectNames.push(subjName);
+          }
+        }
+        const grouped = Array.from(byFile.values());
+        setItems(grouped);
         // Cache latest successful results for offline fallback
         if (typeof window !== 'undefined') {
-          try { localStorage.setItem('browse-cache', JSON.stringify(data)); } catch {}
+          try { localStorage.setItem('browse-cache', JSON.stringify(grouped)); } catch {}
         }
       }
     } catch (e: any) {
@@ -190,10 +212,12 @@ function BrowseClient() {
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {loading && <div>Loading...</div>}
         {!loading && items.map((r)=> (
-          <Card key={r.id} className="p-4">
+          <Card key={r.file_path || r.title} className="p-4">
             <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
             <div className="mt-1 font-medium text-slate-900">{r.title}</div>
-            <div className="text-sm text-slate-600">{r.subjects?.name}</div>
+            <div className="text-sm text-slate-600">
+              {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
+            </div>
             {r.file_path && (
               <div className="mt-3">
                 <button onClick={()=>openFile(r.file_path)} className="text-blue-800 underline text-sm">Open</button>
