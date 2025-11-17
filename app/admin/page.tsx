@@ -157,6 +157,7 @@ export default function AdminPage(){
       );
     }
     setItems(prev => prev.filter(x=>x.file_path !== filePath));
+    setStatus(decision === "approved" ? "Resource approved successfully." : "Resource rejected successfully.");
   };
 
   const openFile = async (path: string) => {
