@@ -52,7 +52,7 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-sm text-slate-600 flex flex-col sm:flex-row gap-2 sm:gap-6 items-center justify-between">
             <div>© {new Date().getFullYear()} R. D. Engineering College</div>
             <div className="flex gap-4">
-              <a className="hover:text-blue-800" href="#">About</a>
+              <a className="hover:text-blue-800" href="/about">About</a>
               <a className="hover:text-blue-800" href="/admin">Admin</a>
             </div>
           </div>
