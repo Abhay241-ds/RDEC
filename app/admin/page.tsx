@@ -181,6 +181,7 @@ export default function AdminPage(){
     const { error } = await supabase.from("resources").delete().eq("file_path", path).eq("status","approved");
     if (error) { setStatus(error.message); return; }
     setApprovedItems(prev => prev.filter(x => x.file_path !== path));
+    setStatus("File and associated resources deleted successfully.");
   };
 
   if(isAdmin === null) return <div className="max-w-5xl mx-auto px-4 py-8">Checking permissions...</div>;
@@ -189,7 +190,7 @@ export default function AdminPage(){
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-slate-900">Pending Approvals</h1>
-      {status && <p className="mt-2 text-sm">{status}</p>}
+      {status && <p className="mt-2 text-sm text-emerald-700">{status}</p>}
       <div className="mt-4 flex items-center gap-3">
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-[200px]"><SelectValue placeholder="Filter by type" /></SelectTrigger>
