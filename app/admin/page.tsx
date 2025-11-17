@@ -209,8 +209,8 @@ export default function AdminPage(){
         {!loading && items.map((r)=> (
           <Card key={r.file_path || r.title} className="p-3">
             <div className="flex items-start justify-between gap-2">
-              <div className="text-[11px] text-blue-800 font-semibold uppercase">{r.type}</div>
-              <div className="text-right text-xs text-slate-500 leading-tight">
+              <div className="text-sm text-blue-800 font-semibold uppercase">{r.type}</div>
+              <div className="text-right text-sm text-slate-500 leading-tight">
                 {(() => {
                   const deptCodes = deptRows
                     .filter(d => (r.departmentIds || []).includes(d.id))
@@ -227,11 +227,11 @@ export default function AdminPage(){
                 })()}
               </div>
             </div>
-            <div className="mt-1 text-sm font-medium text-slate-900">{r.title}</div>
-            <div className="text-[11px] text-slate-500">
+            <div className="mt-1 text-xl font-medium text-slate-900">{r.title}</div>
+            <div className="text-sm text-slate-500">
               {r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}
             </div>
-            <div className="mt-1 text-xs text-slate-600">
+            <div className="mt-1 text-lg text-slate-600">
               {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -250,8 +250,8 @@ export default function AdminPage(){
         {approvedItems.map(r => (
           <Card key={r.file_path || r.title} className="p-3">
             <div className="flex items-start justify-between gap-2">
-              <div className="text-[11px] text-blue-800 font-semibold uppercase">{r.type}</div>
-              <div className="text-right text-xs text-slate-500 leading-tight">
+              <div className="text-sm text-blue-800 font-semibold uppercase">{r.type}</div>
+              <div className="text-right text-sm text-slate-500 leading-tight">
                 {(() => {
                   const deptCodes = deptRows
                     .filter(d => (r.departmentIds || []).includes(d.id))
