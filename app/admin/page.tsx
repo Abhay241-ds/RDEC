@@ -227,14 +227,14 @@ export default function AdminPage(){
                 })()}
               </div>
             </div>
-            <div className="mt-2.5 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
-            <div className="mt-2.5 text-xs text-slate-500 leading-tight">
+            <div className="mt-1 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
+            <div className="mt-1 text-xs text-slate-500 leading-tight">
               {r.created_at ? `date of uploading - ${new Date(r.created_at).toLocaleDateString()}` : ""}
             </div>
-            <div className="mt-2.5 text-lg text-slate-600 leading-tight">
+            <div className="mt-1 text-lg text-slate-600 leading-tight">
               {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
             </div>
-            <div className="mt-2.5 flex flex-wrap gap-2">
+            <div className="mt-1 flex flex-wrap gap-2">
               {r.file_path && <Button variant="secondary" size="sm" onClick={()=>openFile(r.file_path)}>Open</Button>}
               <Button size="sm" onClick={()=>decide(r.file_path, r.ids, "approved")}>Approve</Button>
               <Button size="sm" variant="secondary" onClick={()=>decide(r.file_path, r.ids, "rejected")}>Reject</Button>
@@ -268,14 +268,14 @@ export default function AdminPage(){
                 })()}
               </div>
             </div>
-            <div className="mt-2.5 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
-            <div className="mt-2.5 text-xs text-slate-500 leading-tight">
+            <div className="mt-1 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
+            <div className="mt-1 text-xs text-slate-500 leading-tight">
               {r.created_at ? `date of uploading - ${new Date(r.created_at).toLocaleDateString()}` : ""}
             </div>
-            <div className="mt-2.5 text-lg text-slate-600 leading-tight">
+            <div className="mt-1 text-lg text-slate-600 leading-tight">
               {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
             </div>
-            <div className="mt-2.5 flex gap-2">
+            <div className="mt-1 flex gap-2">
               {r.file_path && <Button variant="secondary" size="sm" onClick={()=>openFile(r.file_path)}>Open</Button>}
               <Button size="sm" variant="destructive" onClick={()=>deleteResource(r.file_path)}>Delete</Button>
             </div>
