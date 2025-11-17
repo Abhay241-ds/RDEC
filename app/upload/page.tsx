@@ -133,6 +133,21 @@ export default function UploadPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-md border p-2">
                 <div className="text-xs font-medium text-slate-600 mb-1">Departments</div>
+                <div className="mb-1 flex items-center gap-2 text-xs text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={selectedDeptIds.length === departments.length && departments.length > 0}
+                    onChange={(e)=>{
+                      setSelectedSubjectName("");
+                      if (e.target.checked) {
+                        setSelectedDeptIds(departments.map(d=>d.id));
+                      } else {
+                        setSelectedDeptIds([]);
+                      }
+                    }}
+                  />
+                  <span>Select all departments</span>
+                </div>
                 <div className="grid grid-cols-2 gap-1 max-h-40 overflow-auto">
                   {departments.map(d=> (
                     <label key={d.id} className="flex items-center gap-2 text-sm">
