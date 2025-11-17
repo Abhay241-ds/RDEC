@@ -15,5 +15,4 @@ export const TYPES = [
   { value: "notes", label: "Notes" },
   { value: "pyq", label: "PYQ" },
   { value: "syllabus", label: "Syllabus" },
-  { value: "lab", label: "Lab Manual" },
 ] as const;
