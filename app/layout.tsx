@@ -43,8 +43,8 @@ export default function RootLayout({
               <a className="hover:text-blue-800" href="/browse">Browse</a>
               <a className="hover:text-blue-800" href="/upload">Upload</a>
               <a className="hover:text-blue-800" href="/login">Login</a>
+              <a className="hover:text-blue-800" href="/admin">Admin</a>
             </nav>
-            <a href="/upload" className="md:inline-flex hidden px-4 py-2 rounded-md bg-blue-800 text-white hover:bg-blue-700">Submit Resource</a>
           </div>
         </header>
         <main>{children}</main>
@@ -53,7 +53,6 @@ export default function RootLayout({
             <div>© {new Date().getFullYear()} R. D. Engineering College</div>
             <div className="flex gap-4">
               <a className="hover:text-blue-800" href="/about">About</a>
-              <a className="hover:text-blue-800" href="/admin">Admin</a>
             </div>
           </div>
         </footer>
