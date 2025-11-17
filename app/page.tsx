@@ -54,11 +54,6 @@ export default function Home() {
             <div className="mt-4 font-medium">Syllabus</div>
             <p className="text-sm text-slate-600">Stay aligned with the curriculum.</p>
           </a>
-          <a href="/browse?type=lab" className="group p-5 rounded-xl border bg-white hover:shadow-md">
-            <div className="h-10 w-10 grid place-items-center rounded-md bg-blue-100 text-blue-800 font-bold">L</div>
-            <div className="mt-4 font-medium">Lab Manuals</div>
-            <p className="text-sm text-slate-600">Practical guides and references.</p>
-          </a>
         </div>
       </section>
 
@@ -118,7 +113,6 @@ export default function Home() {
                   <option value="notes">Notes</option>
                   <option value="pyq">PYQ</option>
                   <option value="syllabus">Syllabus</option>
-                  <option value="lab">Lab Manual</option>
                 </select>
               </div>
               <button className="mt-2 px-4 py-2 rounded-md bg-blue-800 text-white hover:bg-blue-700">
