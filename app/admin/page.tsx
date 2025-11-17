@@ -13,6 +13,8 @@ export default function AdminPage(){
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [deptRows, setDeptRows] = useState<Array<{id:string; code:string}>>([]);
+  const [semRows, setSemRows] = useState<Array<{id:string; number:number}>>([]);
 
   const load = async () => {
     setLoading(true);
@@ -53,14 +55,14 @@ export default function AdminPage(){
   const loadApproved = async () => {
     let query = supabase
       .from("resources")
-      .select("id,title,type,created_at,file_path,subjects(name)")
+      .select("id,title,type,created_at,file_path,subject_id,subjects(name,department_id,semester_id)")
       .eq("status","approved")
       .order("created_at", { ascending: false })
       .limit(50);
     if (typeFilter !== 'all') query = query.eq('type', typeFilter);
     const { data: res } = await query;
     const rows = (res || []) as any[];
-    const byFile = new Map<string, { file_path: string; title: string; type: string; created_at: string; subjectNames: string[] }>();
+    const byFile = new Map<string, { file_path: string; title: string; type: string; created_at: string; subjectNames: string[]; departmentIds: string[]; semesterIds: string[] }>();
     for (const r of rows) {
       const key = r.file_path || r.id;
       let group = byFile.get(key);
@@ -71,12 +73,22 @@ export default function AdminPage(){
           type: r.type,
           created_at: r.created_at,
           subjectNames: [],
+          departmentIds: [],
+          semesterIds: [],
         };
         byFile.set(key, group);
       }
       const subjName = r.subjects?.name as string | undefined;
       if (subjName && !group.subjectNames.includes(subjName)) {
         group.subjectNames.push(subjName);
+      }
+      const deptId = (r.subjects as any)?.department_id as string | undefined;
+      if (deptId && !group.departmentIds.includes(deptId)) {
+        group.departmentIds.push(deptId);
+      }
+      const semId = (r.subjects as any)?.semester_id as string | undefined;
+      if (semId && !group.semesterIds.includes(semId)) {
+        group.semesterIds.push(semId);
       }
     }
     setApprovedItems(Array.from(byFile.values()));
@@ -98,6 +110,18 @@ export default function AdminPage(){
       else setStatus("Admin access only.");
     })();
   },[typeFilter]);
+
+  // Load departments and semesters so we can display codes and numbers on approved cards
+  useEffect(() => {
+    (async () => {
+      const [dpts, sems] = await Promise.all([
+        supabase.from('departments').select('id,code').order('code'),
+        supabase.from('semesters').select('id,number').order('number'),
+      ]);
+      if (!dpts.error && dpts.data) setDeptRows(dpts.data as any);
+      if (!sems.error && sems.data) setSemRows(sems.data as any);
+    })();
+  }, []);
 
   const decide = async (filePath: string, ids: string[], decision: "approved"|"rejected") => {
     setStatus(null);
@@ -197,7 +221,25 @@ export default function AdminPage(){
         {approvedItems.length===0 && <div>No approved items for this filter.</div>}
         {approvedItems.map(r => (
           <Card key={r.file_path || r.title} className="p-4">
-            <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
+            <div className="flex items-start justify-between gap-2">
+              <div className="text-xs text-blue-800 font-semibold uppercase">{r.type}</div>
+              <div className="text-right text-[11px] text-slate-500 leading-tight">
+                {(() => {
+                  const deptCodes = deptRows
+                    .filter(d => (r.departmentIds || []).includes(d.id))
+                    .map(d => d.code);
+                  const semLabels = semRows
+                    .filter(s => (r.semesterIds || []).includes(s.id))
+                    .map(s => `Sem ${s.number}`);
+                  return (
+                    <>
+                      {deptCodes.length > 0 && <div>{deptCodes.join(', ')}</div>}
+                      {semLabels.length > 0 && <div>{semLabels.join(', ')}</div>}
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
             <div className="mt-1 font-medium text-slate-900">{r.title}</div>
             <div className="text-xs text-slate-500">
               {r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}
