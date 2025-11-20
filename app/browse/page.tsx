@@ -232,7 +232,7 @@ function BrowseClient() {
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {loading && <div>Loading...</div>}
         {!loading && items.map((r)=> (
-          <Card key={r.file_path || r.title} className="p-3">
+          <Card key={r.file_path || r.title} className="p-3 bg-white dark:bg-[#93B1B5]">
             <div className="text-sm text-blue-800 font-semibold uppercase">{r.type}</div>
             <div className="mt-0.5 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
             <div className="mt-0.5 text-xs text-slate-500 leading-tight">

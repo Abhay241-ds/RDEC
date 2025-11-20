@@ -213,7 +213,7 @@ export default function AdminPage(){
         {loading && <div>Loading...</div>}
         {!loading && items.length===0 && <div>No pending items.</div>}
         {!loading && items.map((r)=> (
-          <Card key={r.file_path || r.title} className="p-3">
+          <Card key={r.file_path || r.title} className="p-3 bg-white dark:bg-[#93B1B5]">
             <div className="flex items-start justify-between gap-2">
               <div className="text-sm text-blue-800 font-semibold uppercase leading-tight">{r.type}</div>
               <div className="text-right text-xs text-slate-500 leading-tight">
@@ -257,7 +257,7 @@ export default function AdminPage(){
       <div className="mt-4 grid gap-3">
         {approvedItems.length===0 && <div>No approved items for this filter.</div>}
         {approvedItems.map(r => (
-          <Card key={r.file_path || r.title} className="p-3">
+          <Card key={r.file_path || r.title} className="p-3 bg-white dark:bg-[#93B1B5]">
             <div className="flex items-start justify-between gap-2">
               <div className="text-sm text-blue-800 font-semibold uppercase">{r.type}</div>
               <div className="text-right text-sm text-slate-500 leading-tight">
