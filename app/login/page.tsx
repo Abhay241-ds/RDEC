@@ -52,18 +52,18 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-[60vh] place-items-center px-4">
-      <div className="w-full max-w-sm p-6 rounded-xl border bg-white">
-        <a href="/" className="text-blue-800">← Home</a>
-        <h1 className="mt-4 text-xl font-bold text-slate-900">{userEmail ? "Account" : "Login"}</h1>
+      <div className="w-full max-w-sm p-6 rounded-xl border bg-white dark:bg-[#93B1B5]">
+        <a href="/" className="text-blue-800 dark:text-blue-200">← Home</a>
+        <h1 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">{userEmail ? "Account" : "Login"}</h1>
         {!userEmail ? (
           <div className="mt-6 grid gap-3">
             <Input placeholder="College email" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} />
             <Button onClick={sendLink}>Send login link</Button>
-            {status && <p className="text-sm">{status}</p>}
+            {status && <p className="text-sm dark:text-white">{status}</p>}
           </div>
         ) : (
           <div className="mt-4 grid gap-3">
-            <p className="text-sm text-slate-700">Signed in as {userEmail}</p>
+            <p className="text-sm text-slate-700 dark:text-white">Signed in as {userEmail}</p>
             <Button variant="secondary" onClick={signOut}>Sign out</Button>
           </div>
         )}

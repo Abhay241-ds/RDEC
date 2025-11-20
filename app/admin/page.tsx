@@ -194,9 +194,9 @@ export default function AdminPage(){
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <a href="/" className="text-blue-800">← Home</a>
-      <h1 className="mt-4 text-2xl font-bold text-slate-900">Pending Approvals</h1>
-      {status && <p className="mt-2 text-sm text-emerald-700">{status}</p>}
+      <a href="/" className="text-blue-800 dark:text-blue-200">← Home</a>
+      <h1 className="mt-4 text-2xl font-bold text-slate-900 dark:text-white">Pending Approvals</h1>
+      {status && <p className="mt-2 text-sm text-emerald-700 dark:text-emerald-200">{status}</p>}
       <div className="mt-4 flex items-center gap-3">
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-[200px]"><SelectValue placeholder="Filter by type" /></SelectTrigger>
@@ -249,9 +249,9 @@ export default function AdminPage(){
         ))}
       </div>
 
-      <h2 className="mt-10 text-xl font-semibold text-slate-900">Approved Resources</h2>
-      <div className="mt-2 text-sm text-slate-600">Use Delete to remove all records for a file from browse.</div>
-      <div className="mt-1 text-xs text-slate-500">
+      <h2 className="mt-10 text-xl font-semibold text-slate-900 dark:text-white">Approved Resources</h2>
+      <div className="mt-2 text-sm text-slate-600 dark:text-slate-100">Use Delete to remove all records for a file from browse.</div>
+      <div className="mt-1 text-xs text-slate-500 dark:text-slate-100">
         Types: <span className="font-medium">notes</span> (Notes), <span className="font-medium">pyq</span> (Previous Year Question), <span className="font-medium">syllabus</span> (Syllabus)
       </div>
       <div className="mt-4 grid gap-3">

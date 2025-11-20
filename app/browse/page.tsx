@@ -175,8 +175,8 @@ function BrowseClient() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <a href="/" className="text-blue-800">← Home</a>
-      <h1 className="mt-4 text-2xl font-bold text-slate-900">Browse Resources</h1>
-      {status && <div className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">{status}</div>}
+      <h1 className="mt-4 text-2xl font-bold text-slate-900 dark:text-white">Browse Resources</h1>
+      {status && <div className="mt-2 text-sm text-amber-700 dark:text-amber-200 bg-amber-50 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-500 rounded px-3 py-2">{status}</div>}
 
       <div className="mt-6 grid sm:grid-cols-5 gap-3">
         <div className="flex gap-2">
@@ -233,12 +233,12 @@ function BrowseClient() {
         {loading && <div>Loading...</div>}
         {!loading && items.map((r)=> (
           <Card key={r.file_path || r.title} className="p-3 bg-white dark:bg-[#93B1B5]">
-            <div className="text-sm text-blue-800 font-semibold uppercase">{r.type}</div>
-            <div className="mt-0.5 text-xl font-medium text-slate-900 leading-tight">{r.title}</div>
-            <div className="mt-0.5 text-xs text-slate-500 leading-tight">
+            <div className="text-sm text-blue-800 dark:text-blue-900 font-semibold uppercase">{r.type}</div>
+            <div className="mt-0.5 text-xl font-medium text-slate-900 dark:text-white leading-tight">{r.title}</div>
+            <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-800 leading-tight">
               {r.created_at ? `date of uploading - ${new Date(r.created_at).toLocaleDateString()}` : ""}
             </div>
-            <div className="mt-0.5 text-lg text-slate-600 leading-tight">
+            <div className="mt-0.5 text-lg text-slate-600 dark:text-slate-900 leading-tight">
               {r.subjectNames && r.subjectNames.length > 0 ? r.subjectNames.join(", ") : "(No subjects)"}
             </div>
             {r.file_path && (
