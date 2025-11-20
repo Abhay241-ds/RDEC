@@ -65,17 +65,17 @@ export default function Home() {
               Filter by department, semester, and subject to find exactly what you need.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-sm">CSE</span>
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-sm">CSE(DS)</span>
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-sm">CSE(AIML)</span>
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-sm">IOT</span>
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-sm">IT</span>
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-sm">EC</span>
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-sm">ME</span>
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-sm">CE</span>
+              <span className="px-3 py-1 rounded-full bg-[#93B1B5] text-white text-sm">CSE</span>
+              <span className="px-3 py-1 rounded-full bg-[#93B1B5] text-white text-sm">CSE(DS)</span>
+              <span className="px-3 py-1 rounded-full bg-[#93B1B5] text-white text-sm">CSE(AIML)</span>
+              <span className="px-3 py-1 rounded-full bg-[#93B1B5] text-white text-sm">IOT</span>
+              <span className="px-3 py-1 rounded-full bg-[#93B1B5] text-white text-sm">IT</span>
+              <span className="px-3 py-1 rounded-full bg-[#93B1B5] text-white text-sm">EC</span>
+              <span className="px-3 py-1 rounded-full bg-[#93B1B5] text-white text-sm">ME</span>
+              <span className="px-3 py-1 rounded-full bg-[#93B1B5] text-white text-sm">CE</span>
             </div>
           </div>
-          <div className="p-6 rounded-xl border bg-gradient-to-br from-blue-50 to-white">
+          <div className="p-6 rounded-xl border bg-[#93B1B5]">
             <form action="/browse" className="grid gap-3">
               <div>
                 <label className="text-sm text-slate-600">Search</label>
