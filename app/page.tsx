@@ -39,17 +39,17 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <h2 className="text-xl font-semibold text-slate-900">Quick Access</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <a href="/browse?type=notes" className="group p-5 rounded-xl border bg-white hover:shadow-md">
+          <a href="/browse?type=notes" className="group p-5 rounded-xl border bg-white dark:bg-[#93B1B5] hover:shadow-md">
             <div className="h-10 w-10 grid place-items-center rounded-md bg-blue-100 text-blue-800 font-bold">N</div>
             <div className="mt-4 font-medium">Notes</div>
             <p className="text-sm text-slate-600">Subject-wise curated notes.</p>
           </a>
-          <a href="/browse?type=pyq" className="group p-5 rounded-xl border bg-white hover:shadow-md">
+          <a href="/browse?type=pyq" className="group p-5 rounded-xl border bg-white dark:bg-[#93B1B5] hover:shadow-md">
             <div className="h-10 w-10 grid place-items-center rounded-md bg-blue-100 text-blue-800 font-bold">P</div>
             <div className="mt-4 font-medium">PYQs</div>
             <p className="text-sm text-slate-600">Previous year question papers.</p>
           </a>
-          <a href="/browse?type=syllabus" className="group p-5 rounded-xl border bg-white hover:shadow-md">
+          <a href="/browse?type=syllabus" className="group p-5 rounded-xl border bg-white dark:bg-[#93B1B5] hover:shadow-md">
             <div className="h-10 w-10 grid place-items-center rounded-md bg-blue-100 text-blue-800 font-bold">S</div>
             <div className="mt-4 font-medium">Syllabus</div>
             <p className="text-sm text-slate-600">Stay aligned with the curriculum.</p>
