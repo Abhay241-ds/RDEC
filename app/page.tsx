@@ -57,7 +57,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-white border-t">
+      <section className="bg-white dark:bg-[#4F7C81] border-t">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">Departments &amp; Semesters</h3>
