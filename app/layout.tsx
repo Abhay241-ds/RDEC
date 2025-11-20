@@ -26,8 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100`}>
-        <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-slate-200 dark:border-slate-700">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-slate-800 dark:bg-[#808080] dark:text-white`}>
+        <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#808080] backdrop-blur border-b border-slate-200 dark:border-slate-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             {/* Left: Logo */}
             <div className="flex items-center">
@@ -59,8 +59,8 @@ export default function RootLayout({
           </div>
         </header>
         <main>{children}</main>
-        <footer className="border-t bg-white dark:bg-slate-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-sm text-slate-600 dark:text-slate-300 flex flex-col sm:flex-row gap-2 sm:gap-6 items-center justify-between">
+        <footer className="border-t bg-white dark:bg-[#808080]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-sm text-slate-600 dark:text-white flex flex-col sm:flex-row gap-2 sm:gap-6 items-center justify-between">
             <div>© {new Date().getFullYear()} R. D. Engineering College</div>
             <div className="flex gap-4">
               <a className="hover:text-blue-800" href="/about">About</a>
