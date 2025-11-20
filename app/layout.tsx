@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import ThemeToggle from "@/components/theme-toggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,8 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-slate-800`}>
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100`}>
+        <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-slate-200 dark:border-slate-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             {/* Left: Logo */}
             <div className="flex items-center">
@@ -50,15 +51,16 @@ export default function RootLayout({
               <a className="hover:text-blue-800" href="/login">Login</a>
             </nav>
 
-            {/* Right: Admin link */}
+            {/* Right: Admin link + theme toggle */}
             <div className="hidden md:flex items-center">
               <a className="text-sm hover:text-blue-800" href="/admin">Admin</a>
+              <ThemeToggle />
             </div>
           </div>
         </header>
         <main>{children}</main>
-        <footer className="border-t bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-sm text-slate-600 flex flex-col sm:flex-row gap-2 sm:gap-6 items-center justify-between">
+        <footer className="border-t bg-white dark:bg-slate-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-sm text-slate-600 dark:text-slate-300 flex flex-col sm:flex-row gap-2 sm:gap-6 items-center justify-between">
             <div>© {new Date().getFullYear()} R. D. Engineering College</div>
             <div className="flex gap-4">
               <a className="hover:text-blue-800" href="/about">About</a>
