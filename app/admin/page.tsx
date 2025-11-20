@@ -141,7 +141,9 @@ export default function AdminPage(){
 
     // If rejecting, also remove the underlying file from storage so only approved files remain
     if (decision === "rejected" && filePath) {
-      const { error: storageError } = await supabase.storage.from("resources").remove([filePath]);
+      console.log("[admin] Reject - removing from storage", filePath);
+      const { data: storageData, error: storageError } = await supabase.storage.from("resources").remove([filePath]);
+      console.log("[admin] Reject - storage remove result", { storageData, storageError });
       if (storageError) { setStatus(storageError.message); return; }
     }
 
@@ -175,7 +177,9 @@ export default function AdminPage(){
     setStatus(null);
 
     if (path) {
-      const { error: storageError } = await supabase.storage.from("resources").remove([path]);
+      console.log("[admin] Delete - removing from storage", path);
+      const { data: storageData, error: storageError } = await supabase.storage.from("resources").remove([path]);
+      console.log("[admin] Delete - storage remove result", { storageData, storageError });
       if (storageError) { setStatus(storageError.message); return; }
     }
 
