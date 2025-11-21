@@ -1,5 +1,23 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+
+type HomeSubject = { id: string; name: string };
+
 export default function Home() {
+  const [subjects, setSubjects] = useState<HomeSubject[]>([]);
   const year = new Date().getFullYear();
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("subjects")
+        .select("id,name")
+        .order("name");
+      setSubjects(data || []);
+    })();
+  }, []);
 
   return (
     <main className="flex-1">
@@ -77,24 +95,7 @@ export default function Home() {
           </div>
           <div className="p-6 rounded-xl border bg-[#93B1B5]">
             <form action="/browse" className="grid gap-3">
-              <div>
-                <label className="text-sm text-slate-600">Subject</label>
-                <select
-                  name="subject"
-                  className="mt-1 w-full px-3 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-blue-600"
-                >
-                  <option value="">Select subject</option>
-                  <option>Data Structures</option>
-                  <option>DBMS</option>
-                  <option>Operating System</option>
-                  <option>Computer Networks</option>
-                  <option>Mathematics-I</option>
-                  <option>Mathematics-II</option>
-                  <option>Engineering Physics</option>
-                  <option>Engineering Chemistry</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <select name="dept" className="px-3 py-2 rounded-md border">
                   <option value="">Department</option>
                   <option>CSE</option>
@@ -117,11 +118,22 @@ export default function Home() {
                   <option>7</option>
                   <option>8</option>
                 </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
                 <select name="type" className="px-3 py-2 rounded-md border">
                   <option value="">Type</option>
                   <option value="notes">Notes</option>
                   <option value="pyq">PYQ</option>
                   <option value="syllabus">Syllabus</option>
+                </select>
+                <select
+                  name="subject"
+                  className="px-3 py-2 rounded-md border"
+                >
+                  <option value="">Select subject</option>
+                  {Array.from(new Set(subjects.map(s => s.name))).map(name => (
+                    <option key={name}>{name}</option>
+                  ))}
                 </select>
               </div>
               <button className="mt-2 px-4 py-2 rounded-md bg-blue-800 text-white hover:bg-blue-700">
