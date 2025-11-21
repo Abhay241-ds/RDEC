@@ -112,7 +112,7 @@ export default function Home() {
               <span className="px-3 py-1 rounded-full bg-[#93B1B5] text-white text-sm">CE</span>
             </div>
           </div>
-          <div className="p-6 rounded-xl border bg-[#93B1B5]">
+          <div className="p-6 rounded-xl border bg-white dark:bg-[#93B1B5]">
             <form action="/browse" className="grid gap-3">
               <div className="grid grid-cols-2 gap-3">
                 <select
