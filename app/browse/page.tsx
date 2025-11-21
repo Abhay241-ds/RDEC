@@ -234,7 +234,7 @@ function BrowseClient() {
         {!loading && items.map((r)=> (
           <Card key={r.file_path || r.title} className="p-3 bg-white dark:bg-[#93B1B5]">
             <div className="text-sm text-blue-800 dark:text-blue-900 font-semibold uppercase">{r.type}</div>
-            <div className="mt-0.5 text-xl font-medium text-slate-900 dark:text-white leading-tight">{r.title}</div>
+            <div className="mt-0.5 text-xl font-medium text-slate-900 dark:text-[#FFEFD6] leading-tight">{r.title}</div>
             <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-800 leading-tight">
               {r.created_at ? `date of uploading - ${new Date(r.created_at).toLocaleDateString()}` : ""}
             </div>
