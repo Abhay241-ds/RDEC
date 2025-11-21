@@ -64,7 +64,12 @@ export default function LoginPage() {
         ) : (
           <div className="mt-4 grid gap-3">
             <p className="text-sm text-slate-700 dark:text-white">Signed in as {userEmail}</p>
-            <Button variant="secondary" onClick={signOut}>Sign out</Button>
+            <Button
+              onClick={signOut}
+              className="bg-black text-white hover:bg-black/80 dark:bg-black dark:text-white dark:hover:bg-black/80"
+            >
+              Sign out
+            </Button>
           </div>
         )}
       </div>
