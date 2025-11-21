@@ -122,7 +122,12 @@ export default function UploadPage() {
   return (
     <div className="bg-slate-50 dark:bg-[#4F7C81]">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <a href="/" className="text-blue-800 dark:text-blue-200">← Home</a>
+        <a
+          href="/"
+          className="text-blue-800 dark:bg-blue-900 dark:text-white dark:px-3 dark:py-1 dark:rounded-md dark:inline-block"
+        >
+          ← Home
+        </a>
         <h1 className="mt-4 text-2xl font-bold text-slate-900 dark:text-white">Upload Resource</h1>
 
         <div className="mt-6 p-4 rounded-md border bg-white dark:bg-[#93B1B5]">

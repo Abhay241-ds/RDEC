@@ -53,7 +53,12 @@ export default function LoginPage() {
   return (
     <div className="grid min-h-[60vh] place-items-center px-4">
       <div className="w-full max-w-sm p-6 rounded-xl border bg-white dark:bg-[#93B1B5]">
-        <a href="/" className="text-blue-800 dark:text-blue-200">← Home</a>
+        <a
+          href="/"
+          className="text-blue-800 dark:bg-blue-900 dark:text-white dark:px-3 dark:py-1 dark:rounded-md dark:inline-block"
+        >
+          ← Home
+        </a>
         <h1 className="mt-4 text-xl font-bold text-slate-900 dark:text-[#FFEFD6]">{userEmail ? "Account" : "Login"}</h1>
         {!userEmail ? (
           <div className="mt-6 grid gap-3">

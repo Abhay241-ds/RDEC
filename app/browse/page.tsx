@@ -174,7 +174,12 @@ function BrowseClient() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <a href="/" className="text-blue-800">← Home</a>
+      <a
+        href="/"
+        className="text-blue-800 dark:bg-blue-900 dark:text-white dark:px-3 dark:py-1 dark:rounded-md dark:inline-block"
+      >
+        ← Home
+      </a>
       <h1 className="mt-4 text-2xl font-bold text-slate-900 dark:text-white">Browse Resources</h1>
       {status && <div className="mt-2 text-sm text-amber-700 dark:text-amber-200 bg-amber-50 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-500 rounded px-3 py-2">{status}</div>}
 
