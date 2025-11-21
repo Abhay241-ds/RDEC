@@ -183,7 +183,7 @@ export default function UploadPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <Select value={selectedSubjectName} onValueChange={setSelectedSubjectName}>
-                <SelectTrigger className="dark:text-black">
+                <SelectTrigger className="dark:text-black dark:[&>svg]:text-black dark:[&>svg]:opacity-100">
                   <SelectValue placeholder="Subject" />
                 </SelectTrigger>
                 <SelectContent>
@@ -193,7 +193,7 @@ export default function UploadPage() {
                 </SelectContent>
               </Select>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger className="dark:text-black">
+                <SelectTrigger className="dark:text-black dark:[&>svg]:text-black dark:[&>svg]:opacity-100">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
