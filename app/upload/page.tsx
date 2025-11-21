@@ -126,13 +126,13 @@ export default function UploadPage() {
         <h1 className="mt-4 text-2xl font-bold text-slate-900 dark:text-white">Upload Resource</h1>
 
         <div className="mt-6 p-4 rounded-md border bg-white dark:bg-[#93B1B5]">
-          <p className="text-slate-600 dark:text-[#FFEFD6] text-sm">Students, Faculty, and Admin can upload. All uploads require Admin approval before they appear publicly.</p>
+          <p className="text-slate-600 dark:text-black text-sm">Students, Faculty, and Admin can upload. All uploads require Admin approval before they appear publicly.</p>
           <div className="grid gap-4 mt-4">
             <Input className="px-3 py-2" placeholder="Title" value={title} onChange={e=>setTitle(e.target.value)} />
 
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-md border p-2">
-                <div className="text-xs font-medium text-slate-600 dark:text-[#FFEFD6] mb-1">Departments</div>
+                <div className="text-xs font-medium text-slate-600 dark:text-black mb-1">Departments</div>
                 <div className="mb-1 flex items-center gap-2 text-xs text-slate-600">
                   <input
                     type="checkbox"
@@ -161,7 +161,7 @@ export default function UploadPage() {
                 </div>
               </div>
               <div className="rounded-md border p-2">
-                <div className="text-xs font-medium text-slate-600 dark:text-[#FFEFD6] mb-1">Semesters</div>
+                <div className="text-xs font-medium text-slate-600 dark:text-black mb-1">Semesters</div>
                 <div className="grid grid-cols-3 gap-1 max-h-40 overflow-auto">
                   {semesters.map(s=> (
                     <label key={s.id} className="flex items-center gap-2 text-sm">
@@ -194,7 +194,7 @@ export default function UploadPage() {
             </div>
 
             <div>
-              <label className="text-sm text-slate-600 dark:text-[#FFEFD6]">File</label>
+              <label className="text-sm text-slate-600 dark:text-black">File</label>
               <input type="file" className="mt-1 block w-full text-sm" onChange={(e)=>setFile(e.target.files?.[0] || null)} />
               <p className="text-xs text-slate-500 mt-1">Allowed: PDF. Max 5MB (configurable).</p>
             </div>
