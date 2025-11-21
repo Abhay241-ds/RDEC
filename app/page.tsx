@@ -98,7 +98,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">Departments &amp; Semesters</h3>
-            <p className="mt-2 text-slate-600">
+            <p className="mt-2 text-slate-600 dark:text-[#0F2A2D]">
               Filter by department, semester, and subject to find exactly what you need.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">

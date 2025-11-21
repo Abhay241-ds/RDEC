@@ -39,7 +39,7 @@ export default function RootLayout({
                 />
                 <div className="leading-tight">
                   <div className="font-semibold text-slate-900">R. D. Engineering College</div>
-                  <div className="text-xs text-slate-500">Notes • PYQ Portal</div>
+                  <div className="text-xs text-slate-500 dark:text-[#0F2A2D]">Notes • PYQ Portal</div>
                 </div>
               </a>
             </div>
