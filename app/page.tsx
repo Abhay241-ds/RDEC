@@ -3,21 +3,40 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
-type HomeSubject = { id: string; name: string };
+type HomeSubject = { id: string; name: string; department_id: string; semester_id: string };
+type HomeDept = { id: string; code: string };
+type HomeSem = { id: string; number: number };
 
 export default function Home() {
   const [subjects, setSubjects] = useState<HomeSubject[]>([]);
+  const [departments, setDepartments] = useState<HomeDept[]>([]);
+  const [semesters, setSemesters] = useState<HomeSem[]>([]);
+  const [deptCode, setDeptCode] = useState<string>("");
+  const [semNumber, setSemNumber] = useState<string>("");
   const year = new Date().getFullYear();
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("subjects")
-        .select("id,name")
-        .order("name");
-      setSubjects(data || []);
+      const [subj, dpts, sems] = await Promise.all([
+        supabase.from("subjects").select("id,name,department_id,semester_id").order("name"),
+        supabase.from("departments").select("id,code").order("code"),
+        supabase.from("semesters").select("id,number").order("number"),
+      ]);
+
+      if (!subj.error && subj.data) setSubjects(subj.data as any);
+      if (!dpts.error && dpts.data) setDepartments(dpts.data as any);
+      if (!sems.error && sems.data) setSemesters(sems.data as any);
     })();
   }, []);
+
+  const selectedDept = departments.find(d => d.code === deptCode);
+  const selectedSem = semesters.find(s => String(s.number) === semNumber);
+
+  const filteredSubjects = subjects.filter(s => {
+    if (selectedDept && s.department_id !== selectedDept.id) return false;
+    if (selectedSem && s.semester_id !== selectedSem.id) return false;
+    return true;
+  });
 
   return (
     <main className="flex-1">
@@ -96,7 +115,12 @@ export default function Home() {
           <div className="p-6 rounded-xl border bg-[#93B1B5]">
             <form action="/browse" className="grid gap-3">
               <div className="grid grid-cols-2 gap-3">
-                <select name="dept" className="px-3 py-2 rounded-md border">
+                <select
+                  name="dept"
+                  className="px-3 py-2 rounded-md border"
+                  value={deptCode}
+                  onChange={(e) => { setDeptCode(e.target.value); }}
+                >
                   <option value="">Department</option>
                   <option>CSE</option>
                   <option>CSE(DS)</option>
@@ -107,7 +131,12 @@ export default function Home() {
                   <option>ME</option>
                   <option>CE</option>
                 </select>
-                <select name="sem" className="px-3 py-2 rounded-md border">
+                <select
+                  name="sem"
+                  className="px-3 py-2 rounded-md border"
+                  value={semNumber}
+                  onChange={(e) => { setSemNumber(e.target.value); }}
+                >
                   <option value="">Semester</option>
                   <option>1</option>
                   <option>2</option>
@@ -131,7 +160,7 @@ export default function Home() {
                   className="px-3 py-2 rounded-md border"
                 >
                   <option value="">Select subject</option>
-                  {Array.from(new Set(subjects.map(s => s.name))).map(name => (
+                  {Array.from(new Set(filteredSubjects.map(s => s.name))).map(name => (
                     <option key={name}>{name}</option>
                   ))}
                 </select>
