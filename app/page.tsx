@@ -78,12 +78,21 @@ export default function Home() {
           <div className="p-6 rounded-xl border bg-[#93B1B5]">
             <form action="/browse" className="grid gap-3">
               <div>
-                <label className="text-sm text-slate-600">Search</label>
-                <input
-                  name="q"
+                <label className="text-sm text-slate-600">Subject</label>
+                <select
+                  name="subject"
                   className="mt-1 w-full px-3 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-blue-600"
-                  placeholder="e.g., Data Structures notes"
-                />
+                >
+                  <option value="">Select subject</option>
+                  <option>Data Structures</option>
+                  <option>DBMS</option>
+                  <option>Operating System</option>
+                  <option>Computer Networks</option>
+                  <option>Mathematics-I</option>
+                  <option>Mathematics-II</option>
+                  <option>Engineering Physics</option>
+                  <option>Engineering Chemistry</option>
+                </select>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <select name="dept" className="px-3 py-2 rounded-md border">
