@@ -40,10 +40,11 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="ml-4 inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+      className="ml-4 w-10 h-10 flex items-center justify-center rounded-full border border-[#4F7C81] bg-[#93B1B5]/30 text-[#0F2A2D] transition-all duration-300 hover:bg-[#4F7C81] hover:text-white dark:bg-[#4F7C81] dark:text-white"
     >
-      {/* simple moon icon as text glyph */}
-      <span aria-hidden="true">☾</span>
+      <span aria-hidden="true" className="text-lg">
+        {theme === "dark" ? "☀" : "🌙"}
+      </span>
     </button>
   );
 }
