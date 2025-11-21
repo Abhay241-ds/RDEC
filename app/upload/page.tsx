@@ -196,10 +196,10 @@ export default function UploadPage() {
             <div>
               <label className="text-sm text-slate-600 dark:text-black">File</label>
               <input type="file" className="mt-1 block w-full text-sm" onChange={(e)=>setFile(e.target.files?.[0] || null)} />
-              <p className="text-xs text-slate-500 mt-1">Allowed: PDF. Max 5MB (configurable).</p>
+              <p className="text-xs text-slate-500 dark:text-black mt-1">Allowed: PDF. Max 5MB (configurable).</p>
             </div>
             <Button type="button" className="bg-blue-800 text-white" disabled={loading} onClick={onSubmit}>{loading? "Uploading..." : "Submit"}</Button>
-            {message && <p className="text-sm">{message}</p>}
+            {message && <p className="text-sm dark:text-black">{message}</p>}
           </div>
         </div>
       </div>
