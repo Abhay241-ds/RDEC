@@ -128,7 +128,12 @@ export default function UploadPage() {
         <div className="mt-6 p-4 rounded-md border bg-white dark:bg-[#93B1B5]">
           <p className="text-slate-600 dark:text-black text-sm">Students, Faculty, and Admin can upload. All uploads require Admin approval before they appear publicly.</p>
           <div className="grid gap-4 mt-4">
-            <Input className="px-3 py-2" placeholder="Title" value={title} onChange={e=>setTitle(e.target.value)} />
+            <Input
+              className="px-3 py-2 dark:text-black dark:placeholder:text-black"
+              placeholder="Title"
+              value={title}
+              onChange={e=>setTitle(e.target.value)}
+            />
 
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-md border p-2">
@@ -178,7 +183,9 @@ export default function UploadPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <Select value={selectedSubjectName} onValueChange={setSelectedSubjectName}>
-                <SelectTrigger><SelectValue placeholder="Subject" /></SelectTrigger>
+                <SelectTrigger className="dark:text-black">
+                  <SelectValue placeholder="Subject" />
+                </SelectTrigger>
                 <SelectContent>
                   {dedupedSubjects.map(d=> (
                     <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>
@@ -186,7 +193,9 @@ export default function UploadPage() {
                 </SelectContent>
               </Select>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
+                <SelectTrigger className="dark:text-black">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
                 <SelectContent>
                   {TYPES.map(t=> <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
                 </SelectContent>
