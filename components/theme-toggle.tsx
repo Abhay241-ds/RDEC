@@ -40,9 +40,10 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="ml-4 text-sm px-3 py-1 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+      className="ml-4 inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
     >
-      {theme === "dark" ? "Light mode" : "Dark mode"}
+      {/* simple moon icon as text glyph */}
+      <span aria-hidden="true">☾</span>
     </button>
   );
 }
