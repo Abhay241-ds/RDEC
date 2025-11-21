@@ -194,12 +194,7 @@ export default function AdminPage(){
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <a
-        href="/"
-        className="text-blue-800 dark:bg-blue-900 dark:text-white dark:px-3 dark:py-1 dark:rounded-md dark:inline-block"
-      >
-        ← Home
-      </a>
+      <a href="/" className="text-blue-800 dark:text-blue-900">← Home</a>
       <h1 className="mt-4 text-2xl font-bold text-slate-900 dark:text-white">Pending Approvals</h1>
       {status && <p className="mt-2 text-sm text-emerald-700 dark:text-emerald-200">{status}</p>}
       <div className="mt-4 flex items-center gap-3">
