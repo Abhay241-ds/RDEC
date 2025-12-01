@@ -13,6 +13,7 @@ export default function AdminPage(){
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [approvedTypeFilter, setApprovedTypeFilter] = useState<string>("all");
   const [deptRows, setDeptRows] = useState<Array<{id:string; code:string}>>([]);
   const [semRows, setSemRows] = useState<Array<{id:string; number:number}>>([]);
 
@@ -69,7 +70,7 @@ export default function AdminPage(){
       .eq("status","approved")
       .order("created_at", { ascending: false })
       .limit(50);
-    if (typeFilter !== 'all') query = query.eq('type', typeFilter);
+    if (approvedTypeFilter !== 'all') query = query.eq('type', approvedTypeFilter);
     const { data: res } = await query;
     const rows = (res || []) as any[];
     const byFile = new Map<string, { file_path: string; title: string; type: string; created_at: string; subjectNames: string[]; departmentIds: string[]; semesterIds: string[] }>();
@@ -119,7 +120,7 @@ export default function AdminPage(){
       }
       else setStatus("Admin access only.");
     })();
-  },[typeFilter]);
+  },[typeFilter, approvedTypeFilter]);
 
   // Load departments and semesters so we can display codes and numbers on approved cards
   useEffect(() => {
@@ -249,10 +250,29 @@ export default function AdminPage(){
         ))}
       </div>
 
-      <h2 className="mt-10 text-xl font-semibold text-slate-900 dark:text-white">Approved Resources</h2>
-      <div className="mt-2 text-sm text-slate-600 dark:text-slate-100">Use Delete to remove all records for a file from browse.</div>
-      <div className="mt-1 text-xs text-slate-500 dark:text-slate-100">
-        Types: <span className="font-medium">notes</span> (Notes), <span className="font-medium">pyq</span> (Previous Year Question), <span className="font-medium">syllabus</span> (Syllabus)
+      <div className="mt-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Approved Resources</h2>
+            <div className="text-sm text-slate-600 dark:text-slate-100">Use Delete to remove all records for a file from browse.</div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={approvedTypeFilter} onValueChange={setApprovedTypeFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="notes">Notes</SelectItem>
+                <SelectItem value="pyq">PYQ</SelectItem>
+                <SelectItem value="syllabus">Syllabus</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="text-xs text-slate-500 dark:text-slate-100">
+          Types: <span className="font-medium">notes</span> (Notes), <span className="font-medium">pyq</span> (Previous Year Question), <span className="font-medium">syllabus</span> (Syllabus)
+        </div>
       </div>
       <div className="mt-4 grid gap-3">
         {approvedItems.length===0 && <div>No approved items for this filter.</div>}
