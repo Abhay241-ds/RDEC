@@ -11,6 +11,7 @@ export default function AdminPage(){
   const [items, setItems] = useState<any[]>([]); // pending groups
   const [approvedItems, setApprovedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingApproved, setLoadingApproved] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [approvedTypeFilter, setApprovedTypeFilter] = useState<string>("all");
@@ -64,14 +65,26 @@ export default function AdminPage(){
   };
 
   const loadApproved = async () => {
-    let query = supabase
-      .from("resources")
-      .select("id,title,type,created_at,file_path,subject_id,subjects(name,department_id,semester_id)")
-      .eq("status","approved")
-      .order("created_at", { ascending: false })
-      .limit(50);
-    if (approvedTypeFilter !== 'all') query = query.eq('type', approvedTypeFilter);
-    const { data: res } = await query;
+    setLoadingApproved(true);
+    try {
+      let query = supabase
+        .from("resources")
+        .select("id,title,type,created_at,file_path,subject_id,subjects(name,department_id,semester_id)")
+        .eq("status","approved")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      
+      if (approvedTypeFilter !== 'all') {
+        query = query.eq('type', approvedTypeFilter);
+      }
+
+      const { data: res, error } = await query;
+      
+      if (error) {
+        console.error('Error loading approved resources:', error);
+        setStatus('Error loading approved resources');
+        return [];
+      }
     const rows = (res || []) as any[];
     const byFile = new Map<string, { file_path: string; title: string; type: string; created_at: string; subjectNames: string[]; departmentIds: string[]; semesterIds: string[] }>();
     for (const r of rows) {
@@ -102,7 +115,14 @@ export default function AdminPage(){
         group.semesterIds.push(semId);
       }
     }
-    setApprovedItems(Array.from(byFile.values()));
+      return Array.from(byFile.values());
+    } catch (error) {
+      console.error('Error in loadApproved:', error);
+      setStatus('Failed to load approved resources');
+      return [];
+    } finally {
+      setLoadingApproved(false);
+    }
   };
 
   useEffect(()=>{
@@ -120,7 +140,18 @@ export default function AdminPage(){
       }
       else setStatus("Admin access only.");
     })();
-  },[typeFilter, approvedTypeFilter]);
+  },[typeFilter]); // Remove approvedTypeFilter from here to prevent double loading
+
+  // Add new effect for approved resources
+  useEffect(() => {
+    if (isAdmin) {
+      const loadApprovedResources = async () => {
+        const approved = await loadApproved();
+        setApprovedItems(approved);
+      };
+      loadApprovedResources();
+    }
+  }, [approvedTypeFilter, isAdmin]);
 
   // Load departments and semesters so we can display codes and numbers on approved cards
   useEffect(() => {
@@ -275,7 +306,15 @@ export default function AdminPage(){
         </div>
       </div>
       <div className="mt-4 grid gap-3">
-        {approvedItems.length===0 && <div>No approved items for this filter.</div>}
+        {loadingApproved ? (
+          <div className="py-4 text-center text-slate-500">Loading approved resources...</div>
+        ) : approvedItems.length === 0 ? (
+          <div className="py-4 text-center text-slate-500">
+            {approvedTypeFilter === 'all' 
+              ? "No approved resources found." 
+              : `No ${approvedTypeFilter} resources found.`}
+          </div>
+        ) : null}
         {approvedItems.map(r => (
           <Card key={r.file_path || r.title} className="p-3 bg-white dark:bg-[#93B1B5]">
             <div className="flex items-start justify-between gap-2">
