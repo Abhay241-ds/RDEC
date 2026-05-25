@@ -3,34 +3,37 @@
 import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
 } from "@/components/ui/select";
+
 import { Button } from "@/components/ui/button";
+
 import { supabase } from "@/lib/supabaseClient";
+
 import { TYPES } from "@/lib/constants";
 
 type Dept = {
-  id: string;
-  code: string;
+id:string;
+code:string;
 };
 
 type Sem = {
-  id: string;
-  number: number;
+id:string;
+number:number;
 };
 
 type Subj = {
-  id: string;
-  name: string;
-  department_id: string;
-  semester_id: string;
+id:string;
+name:string;
+department_id:string;
+semester_id:string;
 };
 
-export default function UploadPage() {
+export default function UploadPage(){
 
 const [title,setTitle]=
 useState("");
@@ -39,7 +42,8 @@ const [description,
 setDescription]=
 useState("");
 
-const [type,setType]=
+const [type,
+setType]=
 useState("");
 
 const [selectedDept,
@@ -54,7 +58,8 @@ const [subject,
 setSubject]=
 useState("");
 
-const [file,setFile]=
+const [file,
+setFile]=
 useState<File|null>(
 null
 );
@@ -135,18 +140,20 @@ return subjects.filter(
 s=>
 
 (
-!selectedDept ||
+!selectedDept||
 
-s.department_id===selectedDept
+s.department_id===
+selectedDept
 
 )
 
 &&
 
 (
-!selectedSem ||
+!selectedSem||
 
-s.semester_id===selectedSem
+s.semester_id===
+selectedSem
 
 )
 
@@ -172,9 +179,7 @@ await supabase
 .getUser();
 
 const userId=
-userData
-.user
-?.id;
+userData.user?.id;
 
 if(!userId){
 
@@ -183,12 +188,13 @@ setMessage(
 );
 
 return;
+
 }
 
 if(
 !title||
-!type||
 !subject||
+!type||
 !file
 ){
 
@@ -197,6 +203,7 @@ setMessage(
 );
 
 return;
+
 }
 
 const ext=
@@ -235,7 +242,8 @@ await supabase
 .from(
 "resources"
 )
-.insert([{
+.insert([
+{
 
 title,
 
@@ -252,10 +260,12 @@ path,
 uploader_id:
 userId,
 
-}]);
+}
+
+]);
 
 setMessage(
-"Upload Successful"
+"Upload successful"
 );
 
 }
@@ -288,9 +298,9 @@ Upload Resource
 
 </h1>
 
-<div className="bg-white border rounded p-6 mt-6">
+<div className="mt-6 border rounded bg-white p-6">
 
-<div className="grid gap-4">
+<div className="grid gap-5">
 
 <Input
 placeholder="Title"
@@ -314,13 +324,13 @@ e.target.value
 
 <div>
 
-<p className="font-medium">
+<p className="font-semibold mb-2">
 
 Department
 
 </p>
 
-<div className="mt-2 space-y-2">
+<div className="space-y-2">
 
 {
 departments.map(
@@ -328,18 +338,20 @@ d=>(
 
 <label
 key={d.id}
-className="flex gap-2"
+className="flex gap-2 items-center"
 >
 
 <input
 type="radio"
-name="dept"
+name="department"
+value={d.id}
 checked={
-selectedDept===d.id
-}
-onChange={()=>
-setSelectedDept(
+selectedDept===
 d.id
+}
+onChange={(e)=>
+setSelectedDept(
+e.target.value
 )}
 />
 
@@ -358,13 +370,13 @@ d.id
 
 <div>
 
-<p className="font-medium">
+<p className="font-semibold mb-2">
 
 Semester
 
 </p>
 
-<div className="mt-2 space-y-2">
+<div className="space-y-2">
 
 {
 semesters.map(
@@ -372,24 +384,24 @@ s=>(
 
 <label
 key={s.id}
-className="flex gap-2"
+className="flex gap-2 items-center"
 >
 
 <input
 type="radio"
-name="sem"
+name="semester"
+value={s.id}
 checked={
-selectedSem===s.id
-}
-onChange={()=>
-setSelectedSem(
+selectedSem===
 s.id
+}
+onChange={(e)=>
+setSelectedSem(
+e.target.value
 )}
 />
 
-Semester
-{" "}
-{s.number}
+Semester {s.number}
 
 </label>
 
@@ -478,8 +490,7 @@ value={t.value}
 type="file"
 onChange={(e)=>
 setFile(
-e.target
-.files?.[0]
+e.target.files?.[0]
 ||
 null
 )
