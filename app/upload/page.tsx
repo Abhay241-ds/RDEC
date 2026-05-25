@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 import {
 Select,
@@ -13,7 +12,10 @@ SelectTrigger,
 SelectValue,
 } from "@/components/ui/select";
 
+import { Button } from "@/components/ui/button";
+
 import { supabase } from "@/lib/supabaseClient";
+
 import { TYPES } from "@/lib/constants";
 
 type Dept={
@@ -39,12 +41,10 @@ export default function UploadPage(){
 const [title,setTitle]=
 useState("");
 
-const [description,
-setDescription]=
+const [description,setDescription]=
 useState("");
 
-const [type,
-setType]=
+const [type,setType]=
 useState("");
 
 const [
@@ -54,10 +54,10 @@ setSelectedDeptIds
 useState<string[]>([]);
 
 const [
-selectedSemIds,
-setSelectedSemIds
+selectedSem,
+setSelectedSem
 ]=
-useState<string[]>([]);
+useState("");
 
 const [
 selectedSubject,
@@ -65,7 +65,10 @@ setSelectedSubject
 ]=
 useState("");
 
-const [file,setFile]=
+const [
+file,
+setFile
+]=
 useState<File|null>(
 null
 );
@@ -155,7 +158,8 @@ load();
 const filteredSubjects=
 useMemo(()=>{
 
-return subjects.filter(
+const filtered=
+subjects.filter(
 s=>
 
 (
@@ -170,20 +174,44 @@ s.department_id
 &&
 
 (
-selectedSemIds.length===0||
+!selectedSem||
 
-selectedSemIds.includes(
-s.semester_id
-)
+s.semester_id===
+selectedSem
 
 )
 
 );
 
+const unique=
+new Map();
+
+filtered.forEach(
+s=>{
+
+if(
+!unique.has(
+s.name
+)
+){
+
+unique.set(
+s.name,
+s
+);
+
+}
+
+});
+
+return Array.from(
+unique.values()
+);
+
 },[
 subjects,
 selectedDeptIds,
-selectedSemIds
+selectedSem
 ]);
 
 async function onSubmit(){
@@ -276,41 +304,61 @@ e.target.value
 <div>
 
 <p className="font-medium mb-2">
+
 Departments
+
 </p>
 
 <button
 type="button"
-className="mb-3 border rounded px-3 py-2"
-onClick={()=>
+className="
+mb-3
+border
+rounded
+px-3
+py-2
+"
+onClick={()=>{
 
-setSelectedDeptIds(
-
+if(
 selectedDeptIds.length
 ===
 
 departments.length
+){
 
-?
-
+setSelectedDeptIds(
 []
+);
 
-:
+}
+
+else{
+
+setSelectedDeptIds(
 
 departments.map(
 d=>d.id
 )
 
-)
+);
 
 }
+
+}}
 >
 
 Select All
 
 </button>
 
-<div className="flex flex-wrap gap-3">
+<div
+className="
+flex
+flex-wrap
+gap-2
+"
+>
 
 {
 departments.map(
@@ -320,7 +368,6 @@ d=>(
 key={d.id}
 className="
 flex
-items-center
 gap-2
 border
 rounded
@@ -380,99 +427,49 @@ x!==d.id
 <div>
 
 <p className="font-medium mb-2">
+
 Semester
+
 </p>
 
-<button
-type="button"
-className="mb-3 border rounded px-3 py-2"
-onClick={()=>
-
-setSelectedSemIds(
-
-selectedSemIds.length
-===
-
-semesters.length
-
-?
-
-[]
-
-:
-
-semesters.map(
-s=>s.id
-)
-
-)
-
-}
+<div
+className="
+flex
+flex-wrap
+gap-2
+"
 >
-
-Select All
-
-</button>
-
-<div className="flex flex-wrap gap-3">
 
 {
 semesters.map(
 s=>(
 
-<label
+<button
 key={s.id}
-className="
-flex
-items-center
-gap-2
-border
-rounded
-px-3
-py-2
-"
+type="button"
+onClick={()=>
+setSelectedSem(
+s.id
+)
+}
+className={
+
+selectedSem===s.id
+
+?
+
+"px-3 py-2 rounded bg-blue-700 text-white"
+
+:
+
+"px-3 py-2 rounded border"
+
+}
 >
-
-<input
-type="checkbox"
-checked={
-selectedSemIds.includes(
-s.id
-)
-}
-onChange={(e)=>{
-
-if(
-e.target.checked
-){
-
-setSelectedSemIds(
-[
-...selectedSemIds,
-s.id
-]
-);
-
-}
-else{
-
-setSelectedSemIds(
-
-selectedSemIds.filter(
-x=>
-x!==s.id
-)
-
-);
-
-}
-
-}}
-/>
 
 {s.number}
 
-</label>
+</button>
 
 ))
 }
@@ -489,14 +486,20 @@ Subjects
 
 </p>
 
-<div className="flex flex-wrap gap-2">
+<div
+className="
+flex
+flex-wrap
+gap-2
+"
+>
 
 {
 filteredSubjects.map(
 s=>(
 
 <button
-key={s.id}
+key={s.name}
 type="button"
 onClick={()=>
 setSelectedSubject(
@@ -505,10 +508,7 @@ s.id
 }
 className={
 
-selectedSubject
-===
-
-s.id
+selectedSubject===s.id
 
 ?
 
@@ -593,8 +593,11 @@ loading
 loading
 ?
 "Uploading..."
+
 :
+
 "Upload"
+
 }
 
 </Button>
