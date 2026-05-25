@@ -3,113 +3,91 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Input } from "@/components/ui/input";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
 import { Button } from "@/components/ui/button";
 
-import { supabase } from "@/lib/supabaseClient";
+import {
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
+} from "@/components/ui/select";
 
+import { supabase } from "@/lib/supabaseClient";
 import { TYPES } from "@/lib/constants";
 
-type Dept = {
-  id: string;
-  code: string;
-  name: string;
+type Dept={
+id:string;
+code:string;
+name:string;
 };
 
-type Sem = {
-  id: string;
-  number: number;
+type Sem={
+id:string;
+number:number;
 };
 
-type Subj = {
-  id: string;
-  name: string;
-  department_id: string;
-  semester_id: string;
+type Subj={
+id:string;
+name:string;
+department_id:string;
+semester_id:string;
 };
 
-export default function UploadPage() {
+export default function UploadPage(){
 
 const [title,setTitle]=
 useState("");
 
-const [description,setDescription]=
+const [description,
+setDescription]=
 useState("");
 
 const [type,setType]=
 useState("");
 
-const [
-selectedDeptIds,
-setSelectedDeptIds
-]=
-useState<string[]>([]);
-
-const [
-selectedSemIds,
-setSelectedSemIds
-]=
-useState<string[]>([]);
-
-const [
-selectedSubjectName,
-setSelectedSubjectName
-]=
+const [selectedDept,
+setSelectedDept]=
 useState("");
 
-const [
-file,
-setFile
-]=
+const [selectedSem,
+setSelectedSem]=
+useState("");
+
+const [selectedSubject,
+setSelectedSubject]=
+useState("");
+
+const [file,setFile]=
 useState<File|null>(
 null
 );
 
-const [
-departments,
-setDepartments
-]=
+const [departments,
+setDepartments]=
 useState<Dept[]>([]);
 
-const [
-semesters,
-setSemesters
-]=
+const [semesters,
+setSemesters]=
 useState<Sem[]>([]);
 
-const [
-subjects,
-setSubjects
-]=
+const [subjects,
+setSubjects]=
 useState<Subj[]>([]);
 
-const [
-message,
-setMessage
-]=
-useState("");
-
-const [
-loading,
-setLoading
-]=
+const [loading,
+setLoading]=
 useState(false);
+
+const [message,
+setMessage]=
+useState("");
 
 useEffect(()=>{
 
-async function loadData(){
+async function load(){
 
-const {
-data:dept
-}=
+const dept=
 await supabase
 .from(
 "departments"
@@ -119,9 +97,7 @@ await supabase
 "code"
 );
 
-const {
-data:sem
-}=
+const sem=
 await supabase
 .from(
 "semesters"
@@ -131,9 +107,7 @@ await supabase
 "number"
 );
 
-const {
-data:sub
-}=
+const sub=
 await supabase
 .from(
 "subjects"
@@ -144,20 +118,20 @@ await supabase
 );
 
 setDepartments(
-dept||[]
+dept.data||[]
 );
 
 setSemesters(
-sem||[]
+sem.data||[]
 );
 
 setSubjects(
-sub||[]
+sub.data||[]
 );
 
 }
 
-loadData();
+load();
 
 },[]);
 
@@ -168,22 +142,20 @@ return subjects.filter(
 s=>
 
 (
-selectedDeptIds.length===0||
+!selectedDept||
 
-selectedDeptIds.includes(
-s.department_id
-)
+s.department_id===
+selectedDept
 
 )
 
 &&
 
 (
-selectedSemIds.length===0||
+!selectedSem||
 
-selectedSemIds.includes(
-s.semester_id
-)
+s.semester_id===
+selectedSem
 
 )
 
@@ -191,8 +163,8 @@ s.semester_id
 
 },[
 subjects,
-selectedDeptIds,
-selectedSemIds
+selectedDept,
+selectedSem
 ]);
 
 async function onSubmit(){
@@ -200,7 +172,7 @@ async function onSubmit(){
 if(
 !title||
 !type||
-!selectedSubjectName||
+!selectedSubject||
 !file
 ){
 
@@ -234,7 +206,7 @@ return(
 
 <div className="bg-slate-50 min-h-screen">
 
-<div className="max-w-2xl mx-auto p-8">
+<div className="max-w-3xl mx-auto p-8">
 
 <a
 href="/"
@@ -255,18 +227,12 @@ Upload Resource
 
 <div
 className="
-mt-6
 bg-white
 border
 rounded-lg
 p-6
-"
->
-
-<div
-className="
-grid
-gap-4
+mt-6
+space-y-5
 "
 >
 
@@ -290,171 +256,165 @@ e.target.value
 
 <div>
 
-<p className="font-medium">
-
-Departments
-
+<p className="font-medium mb-2">
+Department
 </p>
+
+<div className="flex flex-wrap gap-2">
 
 {
 departments.map(
 d=>(
 
-<label
+<button
 key={d.id}
-className="
-flex
-gap-2
-"
->
-
-<input
-type="checkbox"
-checked={
-selectedDeptIds.includes(
+type="button"
+onClick={()=>{
+setSelectedDept(
 d.id
-)
-}
-onChange={(e)=>{
-
-if(
-e.target.checked
-){
-
-setSelectedDeptIds([
-...selectedDeptIds,
-d.id
-]);
-
-}
-else{
-
-setSelectedDeptIds(
-
-selectedDeptIds.filter(
-x=>
-x!==d.id
-)
-
 );
 
-}
+setSelectedSubject(
+""
+);
 
 }}
-/>
+className={
+
+selectedDept===d.id
+
+?
+
+"px-4 py-2 rounded bg-blue-700 text-white"
+
+:
+
+"px-4 py-2 rounded border"
+
+}
+>
 
 {d.code}
 
-</label>
+</button>
 
 ))
 }
+
+</div>
 
 </div>
 
 <div>
 
-<p className="font-medium">
-
+<p className="font-medium mb-2">
 Semester
-
 </p>
+
+<div className="flex flex-wrap gap-2">
 
 {
 semesters.map(
 s=>(
 
-<label
+<button
 key={s.id}
-className="
-flex
-gap-2
-"
->
-
-<input
-type="checkbox"
-checked={
-selectedSemIds.includes(
+type="button"
+onClick={()=>{
+setSelectedSem(
 s.id
-)
-}
-onChange={(e)=>{
-
-if(
-e.target.checked
-){
-
-setSelectedSemIds([
-...selectedSemIds,
-s.id
-]);
-
-}
-else{
-
-setSelectedSemIds(
-
-selectedSemIds.filter(
-x=>
-x!==s.id
-)
-
 );
 
-}
+setSelectedSubject(
+""
+);
 
 }}
-/>
+className={
 
-Semester
+selectedSem===s.id
+
+?
+
+"px-4 py-2 rounded bg-blue-700 text-white"
+
+:
+
+"px-4 py-2 rounded border"
+
+}
+>
+
 {s.number}
 
-</label>
+</button>
 
 ))
 }
 
 </div>
 
-<Select
-value={
-selectedSubjectName
-}
-onValueChange={
-setSelectedSubjectName
-}
->
+</div>
 
-<SelectTrigger>
+<div>
 
-<SelectValue
-placeholder="Subject"
-/>
+<p className="font-medium mb-2">
+Subject
+</p>
 
-</SelectTrigger>
-
-<SelectContent>
+<div className="flex flex-wrap gap-2">
 
 {
+filteredSubjects.length===0
+
+?
+
+(
+<p>
+
+Select Department and Semester
+
+</p>
+)
+
+:
+
 filteredSubjects.map(
 s=>(
 
-<SelectItem
+<button
 key={s.id}
-value={s.name}
+type="button"
+onClick={()=>
+setSelectedSubject(
+s.id
+)
+}
+className={
+
+selectedSubject===s.id
+
+?
+
+"px-4 py-2 rounded bg-black text-white"
+
+:
+
+"px-4 py-2 rounded border"
+
+}
 >
 
 {s.name}
 
-</SelectItem>
+</button>
 
 ))
 }
 
-</SelectContent>
+</div>
 
-</Select>
+</div>
 
 <Select
 value={type}
@@ -497,7 +457,8 @@ value={t.value}
 type="file"
 onChange={(e)=>
 setFile(
-e.target.files?.[0]
+e.target
+.files?.[0]
 ||
 null
 )
@@ -532,8 +493,6 @@ message&&
 
 </p>
 }
-
-</div>
 
 </div>
 
