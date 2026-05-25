@@ -1,592 +1,229 @@
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import { Input } from "@/components/ui/input";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import { Button } from "@/components/ui/button";
-
-import { supabase } from "@/lib/supabaseClient";
-
-import { TYPES } from "@/lib/constants";
-
-type Dept = {
-  id: string;
-  code: string;
-  name: string;
-};
-
-type Sem = {
-  id: string;
-  number: number;
-};
-
-type Subj = {
-  id: string;
-  name: string;
-  department_id: string;
-  semester_id: string;
-};
+import { useState } from "react";
 
 export default function UploadPage() {
+  const [title, setTitle] = useState("");
+  const [type, setType] = useState("");
+  const [department, setDepartment] =
+    useState("");
+
+  const [semester, setSemester] =
+    useState("");
+
+  const [subject, setSubject] =
+    useState("");
+
+  const [file, setFile] =
+    useState<File | null>(null);
+
+  return (
+    <div className="bg-slate-50 min-h-screen">
+
+      <div className="max-w-2xl mx-auto p-8">
+
+        <a
+          href="/"
+          className="text-blue-700"
+        >
+          ← Home
+        </a>
+
+        <h1 className="text-3xl font-bold mt-4">
+          Upload Resource
+        </h1>
+
+        <div className="mt-6 border rounded-lg bg-white p-6">
+
+          <div className="flex flex-col gap-4">
+
+            {/* Title */}
+
+            <input
+              type="text"
+              placeholder="Title"
+              value={title}
+              onChange={(e) =>
+                setTitle(
+                  e.target.value
+                )
+              }
+              className="border p-2 rounded"
+            />
+
+            {/* Department */}
+
+            <select
+              value={department}
+              onChange={(e) =>
+                setDepartment(
+                  e.target.value
+                )
+              }
+              className="border p-2 rounded"
+            >
+              <option>
+                Select Department
+              </option>
+
+              <option>
+                CSE
+              </option>
+
+              <option>
+                IT
+              </option>
+
+              <option>
+                ECE
+              </option>
+
+            </select>
+
+            {/* Semester */}
+
+            <select
+              value={semester}
+              onChange={(e) =>
+                setSemester(
+                  e.target.value
+                )
+              }
+              className="border p-2 rounded"
+            >
+              <option>
+                Select Semester
+              </option>
+
+              <option>
+                1
+              </option>
+
+              <option>
+                2
+              </option>
+
+              <option>
+                3
+              </option>
 
-const [title,setTitle]=
-useState("");
-
-const [description,
-setDescription]=
-useState("");
-
-const [type,
-setType]=
-useState("");
-
-const [
-selectedDeptIds,
-setSelectedDeptIds
-]=
-useState<string[]>([]);
-
-const [
-selectedSemIds,
-setSelectedSemIds
-]=
-useState<string[]>([]);
-
-const [
-selectedSubjectName,
-setSelectedSubjectName
-]=
-useState("");
-
-const [
-file,
-setFile
-]=
-useState<File|null>(
-null
-);
-
-const [
-departments,
-setDepartments
-]=
-useState<Dept[]>([]);
-
-const [
-semesters,
-setSemesters
-]=
-useState<Sem[]>([]);
-
-const [
-subjects,
-setSubjects
-]=
-useState<Subj[]>([]);
-
-const [
-loading,
-setLoading
-]=
-useState(false);
-
-const [
-message,
-setMessage
-]=
-useState<string|null>(
-null
-);
-
-useEffect(()=>{
-
-(
-async()=>{
-
-const [
-{
-data:dpts
-},
-
-{
-data:sems
-},
-
-{
-data:subjs
-}
-
-]=
-await Promise.all([
-
-supabase
-.from(
-"departments"
-)
-.select("*")
-.order(
-"code"
-),
-
-supabase
-.from(
-"semesters"
-)
-.select("*")
-.order(
-"number"
-),
+            </select>
 
-supabase
-.from(
-"subjects"
-)
-.select("*")
-.order(
-"name"
-),
+            {/* Subject */}
 
-]);
+            <select
+              value={subject}
+              onChange={(e) =>
+                setSubject(
+                  e.target.value
+                )
+              }
+              className="border p-2 rounded"
+            >
+              <option>
+                Select Subject
+              </option>
 
-setDepartments(
-dpts||[]
-);
+              <option>
+                Java
+              </option>
 
-setSemesters(
-sems||[]
-);
+              <option>
+                DBMS
+              </option>
 
-setSubjects(
-subjs||[]
-);
+              <option>
+                CN
+              </option>
 
-}
+            </select>
 
-)();
+            {/* Type */}
 
-},[]);
+            <select
+              value={type}
+              onChange={(e) =>
+                setType(
+                  e.target.value
+                )
+              }
+              className="border p-2 rounded"
+            >
+              <option>
+                Select Type
+              </option>
 
-const filteredSubjects=
-useMemo(()=>{
+              <option>
+                Notes
+              </option>
 
-const dept=
-new Set(
-selectedDeptIds
-);
+              <option>
+                Assignment
+              </option>
 
-const sem=
-new Set(
-selectedSemIds
-);
+              <option>
+                PYQ
+              </option>
 
-return subjects.filter(
-s=>
+            </select>
 
-(
-dept.size===0||
+            {/* File */}
 
-dept.has(
-s.department_id
-)
+            <div>
 
-)
+              <div className="flex items-center gap-4">
 
-&&
+                <label className="font-medium">
+                  Upload File
+                </label>
 
-(
-sem.size===0||
+                <label className="bg-black text-white px-5 py-2 rounded cursor-pointer hover:bg-gray-800">
 
-sem.has(
-s.semester_id
-)
+                  Choose File
 
-)
+                  <input
+                    type="file"
+                    hidden
+                    onChange={(e) =>
+                      setFile(
+                        e.target.files?.[0] ||
+                          null
+                      )
+                    }
+                  />
 
-);
+                </label>
 
-},[
-subjects,
-selectedDeptIds,
-selectedSemIds
-]);
+              </div>
 
-const deduped=
-useMemo(()=>{
+              {file && (
 
-const map=
-new Map();
+                <p className="mt-2 text-sm text-gray-600">
 
-for(
-const s
-of
-filteredSubjects
-){
+                  Selected:
+                  {" "}
+                  {file.name}
 
-if(
-!map.has(
-s.name
-)
-){
+                </p>
 
-map.set(
-s.name,
-s.id
-);
+              )}
 
-}
+            </div>
 
-}
+            {/* Upload Button */}
 
-return Array.from(
-map.entries()
-);
-
-},[
-filteredSubjects
-]);
+            <button
+              className="bg-blue-700 text-white p-3 rounded hover:bg-blue-800"
+            >
+              Upload
+            </button>
 
-async function onSubmit(){
+          </div>
 
-if(
-!title||
-!type||
-!selectedSubjectName||
-!file
-){
+        </div>
 
-setMessage(
-"Fill all fields"
-);
+      </div>
 
-return;
-
-}
-
-setLoading(
-true
-);
-
-try{
-
-const {
-data
-}=
-await supabase
-.auth
-.getUser();
-
-const userId=
-data.user?.id;
-
-if(
-!userId
-){
-
-setMessage(
-"Login required"
-);
-
-return;
-
-}
-
-const ext=
-file.name
-.split(".")
-.pop();
-
-const path=
-`${userId}/${Date.now()}.${ext}`;
-
-const {
-error:
-upErr
-}=
-await supabase
-.storage
-.from(
-"resources"
-)
-.upload(
-path,
-file
-);
-
-if(
-upErr
-){
-
-setMessage(
-upErr.message
-);
-
-return;
-
-}
-
-const subject=
-filteredSubjects.find(
-s=>
-s.name===
-selectedSubjectName
-);
-
-const {
-error:
-dbErr
-}=
-await supabase
-.from(
-"resources"
-)
-.insert([{
-
-title,
-
-description,
-
-type,
-
-subject_id:
-subject?.id,
-
-file_path:
-path,
-
-uploader_id:
-userId,
-
-status:
-"pending",
-
-}]);
-
-if(
-dbErr
-){
-
-setMessage(
-dbErr.message
-);
-
-}
-else{
-
-setMessage(
-"Uploaded successfully"
-);
-
-}
-
-}
-finally{
-
-setLoading(
-false
-);
-
-}
-
-}
-
-return(
-
-<div className="bg-slate-50 min-h-screen">
-
-<div className="max-w-2xl mx-auto p-8">
-
-<a
-href="/"
-className="text-blue-700"
->
-
-← Home
-
-</a>
-
-<h1
-className="text-3xl font-bold mt-4"
->
-
-Upload Resource
-
-</h1>
-
-<div
-className="
-mt-6
-border
-rounded-lg
-bg-white
-p-6
-"
->
-
-<div
-className="
-grid
-gap-4
-"
->
-
-<Input
-placeholder="Title"
-value={title}
-onChange={(e)=>
-setTitle(
-e.target.value
-)}
-/>
-
-<Input
-placeholder="Description"
-value={description}
-onChange={(e)=>
-setDescription(
-e.target.value
-)}
-/>
-
-<Select
-value={
-selectedSubjectName
-}
-onValueChange={
-setSelectedSubjectName
-}
->
-
-<SelectTrigger>
-
-<SelectValue
-placeholder="Subject"
-/>
-
-</SelectTrigger>
-
-<SelectContent>
-
-{
-deduped.map(
-([name])=>(
-
-<SelectItem
-key={name}
-value={name}
->
-
-{name}
-
-</SelectItem>
-
-))
-}
-
-</SelectContent>
-
-</Select>
-
-<Select
-value={type}
-onValueChange={
-setType
-}
->
-
-<SelectTrigger>
-
-<SelectValue
-placeholder="Type"
-/>
-
-</SelectTrigger>
-
-<SelectContent>
-
-{
-TYPES.map(
-t=>(
-
-<SelectItem
-key={t.value}
-value={t.value}
->
-
-{t.label}
-
-</SelectItem>
-
-))
-}
-
-</SelectContent>
-
-</Select>
-
-<input
-type="file"
-onChange={(e)=>
-setFile(
-e.target
-.files?.[0]
-||
-null
-)
-}
-/>
-
-<Button
-onClick={
-onSubmit
-}
-disabled={
-loading
-}
->
-
-{
-loading
-?
-"Uploading..."
-:
-"Upload"
-}
-
-</Button>
-
-{
-message&&(
-
-<p>
-
-{message}
-
-</p>
-
-)
-}
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-);
-
+    </div>
+  );
 }
