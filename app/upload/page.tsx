@@ -41,9 +41,6 @@ export default function UploadPage(){
 const [title,setTitle]=
 useState("");
 
-const [description,setDescription]=
-useState("");
-
 const [type,setType]=
 useState("");
 
@@ -205,8 +202,7 @@ s
 });
 
 return Array.from(
-unique.values()
-);
+unique.values());
 
 },[
 subjects,
@@ -292,21 +288,10 @@ e.target.value
 )}
 />
 
-<Input
-placeholder="Description"
-value={description}
-onChange={(e)=>
-setDescription(
-e.target.value
-)}
-/>
-
 <div>
 
 <p className="font-medium mb-2">
-
 Departments
-
 </p>
 
 <button
@@ -323,7 +308,6 @@ onClick={()=>{
 if(
 selectedDeptIds.length
 ===
-
 departments.length
 ){
 
@@ -332,15 +316,12 @@ setSelectedDeptIds(
 );
 
 }
-
 else{
 
 setSelectedDeptIds(
-
 departments.map(
 d=>d.id
 )
-
 );
 
 }
@@ -352,13 +333,7 @@ Select All
 
 </button>
 
-<div
-className="
-flex
-flex-wrap
-gap-2
-"
->
+<div className="flex flex-wrap gap-2">
 
 {
 departments.map(
@@ -389,12 +364,10 @@ if(
 e.target.checked
 ){
 
-setSelectedDeptIds(
-[
+setSelectedDeptIds([
 ...selectedDeptIds,
 d.id
-]
-);
+]);
 
 }
 else{
@@ -432,13 +405,7 @@ Semester
 
 </p>
 
-<div
-className="
-flex
-flex-wrap
-gap-2
-"
->
+<div className="flex flex-wrap gap-2">
 
 {
 semesters.map(
@@ -486,13 +453,7 @@ Subjects
 
 </p>
 
-<div
-className="
-flex
-flex-wrap
-gap-2
-"
->
+<div className="flex flex-wrap gap-2">
 
 {
 filteredSubjects.map(
@@ -512,7 +473,7 @@ selectedSubject===s.id
 
 ?
 
-"px-3 py-2 rounded bg-black text-white"
+"px-3 py-2 rounded bg-blue-700 text-white"
 
 :
 
@@ -569,7 +530,26 @@ value={t.value}
 
 </Select>
 
+<div>
+
+<label
+className="
+inline-flex
+items-center
+justify-center
+px-4
+py-2
+bg-black
+text-white
+rounded
+cursor-pointer
+"
+>
+
+Choose File
+
 <input
+hidden
 type="file"
 onChange={(e)=>
 setFile(
@@ -579,6 +559,22 @@ null
 )
 }
 />
+
+</label>
+
+{
+file&&(
+
+<span className="ml-3">
+
+{file.name}
+
+</span>
+
+)
+}
+
+</div>
 
 <Button
 onClick={
@@ -591,7 +587,9 @@ loading
 
 {
 loading
+
 ?
+
 "Uploading..."
 
 :
