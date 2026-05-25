@@ -27,16 +27,43 @@ export default function UploadPage() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: dpts }, { data: sems }, { data: subjs }] = await Promise.all([
-        supabase.from("departments").select("id,code,name").order("code"),
-        supabase.from("semesters").select("id,number").order("number"),
-        supabase.from("subjects").select("id,name,department_id,semester_id").order("name"),
-      ]);
-      setDepartments(dpts || []);
-      setSemesters(sems || []);
-      setSubjects(subjs || []);
-    })();
-  }, []);
+      const [
+  deptRes,
+  semRes,
+  subjRes,
+] = await Promise.all([
+
+  supabase
+    .from("departments")
+    .select("*"),
+
+  supabase
+    .from("semesters")
+    .select("*"),
+
+  supabase
+    .from("subjects")
+    .select("*"),
+
+]);
+
+console.log(
+deptRes.error,
+semRes.error,
+subjRes.error
+);
+
+setDepartments(
+deptRes.data || []
+);
+
+setSemesters(
+semRes.data || []
+);
+
+setSubjects(
+subjRes.data || []
+);
 
   const filteredSubjects = useMemo(() => {
     const deptSet = new Set(selectedDeptIds);
