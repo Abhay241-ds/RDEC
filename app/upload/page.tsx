@@ -16,7 +16,6 @@ import { TYPES } from "@/lib/constants";
 type Dept = {
   id: string;
   code: string;
-  name: string;
 };
 
 type Sem = {
@@ -32,357 +31,498 @@ type Subj = {
 };
 
 export default function UploadPage() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState("");
-  const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
-  const [selectedSemIds, setSelectedSemIds] = useState<string[]>([]);
-  const [selectedSubjectName, setSelectedSubjectName] = useState("");
-  const [file, setFile] = useState<File | null>(null);
 
-  const [departments, setDepartments] = useState<Dept[]>([]);
-  const [semesters, setSemesters] = useState<Sem[]>([]);
-  const [subjects, setSubjects] = useState<Subj[]>([]);
+const [title,setTitle]=
+useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+const [description,
+setDescription]=
+useState("");
 
-  useEffect(() => {
-    async function load() {
-      const [
-        deptRes,
-        semRes,
-        subjRes,
-      ] = await Promise.all([
-        supabase
-          .from("departments")
-          .select("*"),
+const [type,setType]=
+useState("");
 
-        supabase
-          .from("semesters")
-          .select("*"),
+const [selectedDept,
+setSelectedDept]=
+useState("");
 
-        supabase
-          .from("subjects")
-          .select("*"),
-      ]);
+const [selectedSem,
+setSelectedSem]=
+useState("");
 
-      setDepartments(
-        deptRes.data || []
-      );
+const [subject,
+setSubject]=
+useState("");
 
-      setSemesters(
-        semRes.data || []
-      );
+const [file,setFile]=
+useState<File|null>(
+null
+);
 
-      setSubjects(
-        subjRes.data || []
-      );
-    }
+const [departments,
+setDepartments]=
+useState<Dept[]>([]);
 
-    load();
-  }, []);
+const [semesters,
+setSemesters]=
+useState<Sem[]>([]);
 
-  const filteredSubjects =
-    useMemo(() => {
-      return subjects.filter(
-        (s) =>
-          (
-            selectedDeptIds.length === 0 ||
-            selectedDeptIds.includes(
-              s.department_id
-            )
-          ) &&
-          (
-            selectedSemIds.length === 0 ||
-            selectedSemIds.includes(
-              s.semester_id
-            )
-          )
-      );
-    }, [
-      subjects,
-      selectedDeptIds,
-      selectedSemIds,
-    ]);
+const [subjects,
+setSubjects]=
+useState<Subj[]>([]);
 
-  const onSubmit =
-    async () => {
+const [loading,
+setLoading]=
+useState(false);
 
-      setMessage("");
+const [message,
+setMessage]=
+useState("");
 
-      if (
-        !title ||
-        !type ||
-        !selectedSubjectName ||
-        !file
-      ) {
-        setMessage(
-          "Fill all fields"
-        );
-        return;
-      }
+useEffect(()=>{
 
-      setLoading(true);
+async function load(){
 
-      try {
+const [
+dept,
+sem,
+subj
+]=
+await Promise.all([
 
-        const {
-          data:
-          userData,
-        } =
-          await supabase
-            .auth
-            .getUser();
+supabase
+.from(
+"departments"
+)
+.select("*"),
 
-        const userId =
-          userData.user?.id;
+supabase
+.from(
+"semesters"
+)
+.select("*"),
 
-        if (!userId) {
-          setMessage(
-            "Login required"
-          );
-          return;
-        }
+supabase
+.from(
+"subjects"
+)
+.select("*"),
 
-        const subject =
-          filteredSubjects.find(
-            s =>
-              s.name ===
-              selectedSubjectName
-          );
+]);
 
-        if (!subject) {
-          setMessage(
-            "Choose subject"
-          );
-          return;
-        }
+setDepartments(
+dept.data||[]
+);
 
-        const ext =
-          file.name
-            .split(".")
-            .pop();
+setSemesters(
+sem.data||[]
+);
 
-        const path =
-          `${userId}/${Date.now()}.${ext}`;
+setSubjects(
+subj.data||[]
+);
 
-        const {
-          error:
-          uploadErr,
-        } =
-          await supabase
-            .storage
-            .from(
-              "resources"
-            )
-            .upload(
-              path,
-              file
-            );
+}
 
-        if (
-          uploadErr
-        ) {
-          setMessage(
-            uploadErr.message
-          );
-          return;
-        }
+load();
 
-        const {
-          error:
-          insertErr,
-        } =
-          await supabase
-            .from(
-              "resources"
-            )
-            .insert([
-              {
-                title,
-                description,
-                type,
-                subject_id:
-                  subject.id,
-                file_path:
-                  path,
-                uploader_id:
-                  userId,
-              },
-            ]);
+},[]);
 
-        if (
-          insertErr
-        ) {
-          setMessage(
-            insertErr.message
-          );
-        } else {
+const filteredSubjects=
+useMemo(()=>{
 
-          setMessage(
-            "Upload successful"
-          );
+return subjects.filter(
+s=>
 
-          setTitle("");
-          setDescription("");
-          setType("");
-          setSelectedSubjectName("");
-          setSelectedDeptIds([]);
-          setSelectedSemIds([]);
-          setFile(null);
-        }
+(
+!selectedDept ||
 
-      } finally {
-        setLoading(false);
-      }
-    };
+s.department_id===selectedDept
 
-  return (
-    <div className="bg-slate-50 min-h-screen">
+)
 
-      <div className="max-w-2xl mx-auto p-8">
+&&
 
-        <a
-          href="/"
-          className="text-blue-700"
-        >
-          ← Home
-        </a>
+(
+!selectedSem ||
 
-        <h1 className="text-3xl font-bold mt-4">
-          Upload Resource
-        </h1>
+s.semester_id===selectedSem
 
-        <div className="mt-6 bg-white border rounded p-6">
+)
 
-          <div className="grid gap-4">
+);
 
-            <Input
-              placeholder="Title"
-              value={title}
-              onChange={(e)=>
-                setTitle(
-                  e.target.value
-                )
-              }
-            />
+},[
+subjects,
+selectedDept,
+selectedSem
+]);
 
-            <Input
-              placeholder="Description"
-              value={description}
-              onChange={(e)=>
-                setDescription(
-                  e.target.value
-                )
-              }
-            />
+async function onSubmit(){
 
-            <Select
-              value={selectedSubjectName}
-              onValueChange={
-                setSelectedSubjectName
-              }
-            >
+setLoading(true);
 
-              <SelectTrigger>
+try{
 
-                <SelectValue
-                  placeholder="Subject"
-                />
+const {
+data:userData
+}=
+await supabase
+.auth
+.getUser();
 
-              </SelectTrigger>
+const userId=
+userData
+.user
+?.id;
 
-              <SelectContent>
+if(!userId){
 
-                {
-                  filteredSubjects.map(
-                    s => (
-                      <SelectItem
-                        key={s.id}
-                        value={s.name}
-                      >
-                        {s.name}
-                      </SelectItem>
-                    )
-                  )
-                }
+setMessage(
+"Login required"
+);
 
-              </SelectContent>
+return;
+}
 
-            </Select>
+if(
+!title||
+!type||
+!subject||
+!file
+){
 
-            <Select
-              value={type}
-              onValueChange={setType}
-            >
+setMessage(
+"Fill all fields"
+);
 
-              <SelectTrigger>
+return;
+}
 
-                <SelectValue
-                  placeholder="Type"
-                />
+const ext=
+file.name
+.split(".")
+.pop();
 
-              </SelectTrigger>
+const path=
+`${userId}/${Date.now()}.${ext}`;
 
-              <SelectContent>
+const {
+error:
+uploadErr
+}=
+await supabase
+.storage
+.from(
+"resources"
+)
+.upload(
+path,
+file
+);
 
-                {
-                  TYPES.map(
-                    t => (
-                      <SelectItem
-                        key={t.value}
-                        value={t.value}
-                      >
-                        {t.label}
-                      </SelectItem>
-                    )
-                  )
-                }
+if(uploadErr){
 
-              </SelectContent>
+setMessage(
+uploadErr.message
+);
 
-            </Select>
+return;
 
-            <input
-              type="file"
-              onChange={(e)=>
-                setFile(
-                  e.target
-                    .files?.[0]
-                    || null
-                )
-              }
-            />
+}
 
-            <Button
-              onClick={onSubmit}
-              disabled={loading}
-            >
+await supabase
+.from(
+"resources"
+)
+.insert([{
 
-              {
-                loading
-                  ? "Uploading..."
-                  : "Submit"
-              }
+title,
 
-            </Button>
+description,
 
-            {
-              message &&
-              (
-                <p>
-                  {message}
-                </p>
-              )
-            }
+type,
 
-          </div>
+subject_id:
+subject,
 
-        </div>
+file_path:
+path,
 
-      </div>
+uploader_id:
+userId,
 
-    </div>
-  );
+}]);
+
+setMessage(
+"Upload Successful"
+);
+
+}
+finally{
+
+setLoading(false);
+
+}
+
+}
+
+return(
+
+<div className="bg-slate-50 min-h-screen">
+
+<div className="max-w-2xl mx-auto p-8">
+
+<a
+href="/"
+className="text-blue-700"
+>
+
+← Home
+
+</a>
+
+<h1 className="text-3xl font-bold mt-4">
+
+Upload Resource
+
+</h1>
+
+<div className="bg-white border rounded p-6 mt-6">
+
+<div className="grid gap-4">
+
+<Input
+placeholder="Title"
+value={title}
+onChange={(e)=>
+setTitle(
+e.target.value
+)}
+/>
+
+<Input
+placeholder="Description"
+value={description}
+onChange={(e)=>
+setDescription(
+e.target.value
+)}
+/>
+
+{/* Department */}
+
+<div>
+
+<p className="font-medium">
+
+Department
+
+</p>
+
+<div className="mt-2 space-y-2">
+
+{
+departments.map(
+d=>(
+
+<label
+key={d.id}
+className="flex gap-2"
+>
+
+<input
+type="radio"
+name="dept"
+checked={
+selectedDept===d.id
+}
+onChange={()=>
+setSelectedDept(
+d.id
+)}
+/>
+
+{d.code}
+
+</label>
+
+))
+}
+
+</div>
+
+</div>
+
+{/* Semester */}
+
+<div>
+
+<p className="font-medium">
+
+Semester
+
+</p>
+
+<div className="mt-2 space-y-2">
+
+{
+semesters.map(
+s=>(
+
+<label
+key={s.id}
+className="flex gap-2"
+>
+
+<input
+type="radio"
+name="sem"
+checked={
+selectedSem===s.id
+}
+onChange={()=>
+setSelectedSem(
+s.id
+)}
+/>
+
+Semester
+{" "}
+{s.number}
+
+</label>
+
+))
+}
+
+</div>
+
+</div>
+
+<Select
+value={subject}
+onValueChange={
+setSubject
+}
+>
+
+<SelectTrigger>
+
+<SelectValue
+placeholder="Subject"
+/>
+
+</SelectTrigger>
+
+<SelectContent>
+
+{
+filteredSubjects.map(
+s=>(
+
+<SelectItem
+key={s.id}
+value={s.id}
+>
+
+{s.name}
+
+</SelectItem>
+
+))
+}
+
+</SelectContent>
+
+</Select>
+
+<Select
+value={type}
+onValueChange={
+setType
+}
+>
+
+<SelectTrigger>
+
+<SelectValue
+placeholder="Type"
+/>
+
+</SelectTrigger>
+
+<SelectContent>
+
+{
+TYPES.map(
+t=>(
+
+<SelectItem
+key={t.value}
+value={t.value}
+>
+
+{t.label}
+
+</SelectItem>
+
+))
+}
+
+</SelectContent>
+
+</Select>
+
+<input
+type="file"
+onChange={(e)=>
+setFile(
+e.target
+.files?.[0]
+||
+null
+)
+}
+/>
+
+<Button
+onClick={
+onSubmit
+}
+disabled={
+loading
+}
+>
+
+{
+loading
+?
+"Uploading..."
+:
+"Submit"
+}
+
+</Button>
+
+{
+message&&
+
+<p>
+
+{message}
+
+</p>
+}
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+);
+
 }
