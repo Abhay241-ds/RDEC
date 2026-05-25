@@ -43,19 +43,26 @@ const [description,
 setDescription]=
 useState("");
 
-const [type,setType]=
+const [type,
+setType]=
 useState("");
 
-const [selectedDept,
-setSelectedDept]=
-useState("");
+const [
+selectedDeptIds,
+setSelectedDeptIds
+]=
+useState<string[]>([]);
 
-const [selectedSem,
-setSelectedSem]=
-useState("");
+const [
+selectedSemIds,
+setSelectedSemIds
+]=
+useState<string[]>([]);
 
-const [selectedSubject,
-setSelectedSubject]=
+const [
+selectedSubject,
+setSelectedSubject
+]=
 useState("");
 
 const [file,setFile]=
@@ -63,24 +70,34 @@ useState<File|null>(
 null
 );
 
-const [departments,
-setDepartments]=
+const [
+departments,
+setDepartments
+]=
 useState<Dept[]>([]);
 
-const [semesters,
-setSemesters]=
+const [
+semesters,
+setSemesters
+]=
 useState<Sem[]>([]);
 
-const [subjects,
-setSubjects]=
+const [
+subjects,
+setSubjects
+]=
 useState<Subj[]>([]);
 
-const [loading,
-setLoading]=
+const [
+loading,
+setLoading
+]=
 useState(false);
 
-const [message,
-setMessage]=
+const [
+message,
+setMessage
+]=
 useState("");
 
 useEffect(()=>{
@@ -142,20 +159,22 @@ return subjects.filter(
 s=>
 
 (
-!selectedDept||
+selectedDeptIds.length===0||
 
-s.department_id===
-selectedDept
+selectedDeptIds.includes(
+s.department_id
+)
 
 )
 
 &&
 
 (
-!selectedSem||
+selectedSemIds.length===0||
 
-s.semester_id===
-selectedSem
+selectedSemIds.includes(
+s.semester_id
+)
 
 )
 
@@ -163,8 +182,8 @@ selectedSem
 
 },[
 subjects,
-selectedDept,
-selectedSem
+selectedDeptIds,
+selectedSemIds
 ]);
 
 async function onSubmit(){
@@ -195,7 +214,7 @@ false
 );
 
 setMessage(
-"Ready to upload"
+"Ready for upload"
 );
 
 },1000);
@@ -206,7 +225,7 @@ return(
 
 <div className="bg-slate-50 min-h-screen">
 
-<div className="max-w-3xl mx-auto p-8">
+<div className="max-w-4xl mx-auto p-8">
 
 <a
 href="/"
@@ -227,11 +246,11 @@ Upload Resource
 
 <div
 className="
+mt-6
 bg-white
 border
 rounded-lg
 p-6
-mt-6
 space-y-5
 "
 >
@@ -257,46 +276,99 @@ e.target.value
 <div>
 
 <p className="font-medium mb-2">
-Department
+Departments
 </p>
 
-<div className="flex flex-wrap gap-2">
+<button
+type="button"
+className="mb-3 border rounded px-3 py-2"
+onClick={()=>
+
+setSelectedDeptIds(
+
+selectedDeptIds.length
+===
+
+departments.length
+
+?
+
+[]
+
+:
+
+departments.map(
+d=>d.id
+)
+
+)
+
+}
+>
+
+Select All
+
+</button>
+
+<div className="flex flex-wrap gap-3">
 
 {
 departments.map(
 d=>(
 
-<button
+<label
 key={d.id}
-type="button"
-onClick={()=>{
-setSelectedDept(
+className="
+flex
+items-center
+gap-2
+border
+rounded
+px-3
+py-2
+"
+>
+
+<input
+type="checkbox"
+checked={
+selectedDeptIds.includes(
 d.id
+)
+}
+onChange={(e)=>{
+
+if(
+e.target.checked
+){
+
+setSelectedDeptIds(
+[
+...selectedDeptIds,
+d.id
+]
 );
-
-setSelectedSubject(
-""
-);
-
-}}
-className={
-
-selectedDept===d.id
-
-?
-
-"px-4 py-2 rounded bg-blue-700 text-white"
-
-:
-
-"px-4 py-2 rounded border"
 
 }
->
+else{
+
+setSelectedDeptIds(
+
+selectedDeptIds.filter(
+x=>
+x!==d.id
+)
+
+);
+
+}
+
+}}
+/>
 
 {d.code}
 
-</button>
+</label>
 
 ))
 }
@@ -311,43 +383,96 @@ selectedDept===d.id
 Semester
 </p>
 
-<div className="flex flex-wrap gap-2">
+<button
+type="button"
+className="mb-3 border rounded px-3 py-2"
+onClick={()=>
+
+setSelectedSemIds(
+
+selectedSemIds.length
+===
+
+semesters.length
+
+?
+
+[]
+
+:
+
+semesters.map(
+s=>s.id
+)
+
+)
+
+}
+>
+
+Select All
+
+</button>
+
+<div className="flex flex-wrap gap-3">
 
 {
 semesters.map(
 s=>(
 
-<button
+<label
 key={s.id}
-type="button"
-onClick={()=>{
-setSelectedSem(
+className="
+flex
+items-center
+gap-2
+border
+rounded
+px-3
+py-2
+"
+>
+
+<input
+type="checkbox"
+checked={
+selectedSemIds.includes(
 s.id
+)
+}
+onChange={(e)=>{
+
+if(
+e.target.checked
+){
+
+setSelectedSemIds(
+[
+...selectedSemIds,
+s.id
+]
 );
-
-setSelectedSubject(
-""
-);
-
-}}
-className={
-
-selectedSem===s.id
-
-?
-
-"px-4 py-2 rounded bg-blue-700 text-white"
-
-:
-
-"px-4 py-2 rounded border"
 
 }
->
+else{
+
+setSelectedSemIds(
+
+selectedSemIds.filter(
+x=>
+x!==s.id
+)
+
+);
+
+}
+
+}}
+/>
 
 {s.number}
 
-</button>
+</label>
 
 ))
 }
@@ -359,26 +484,14 @@ selectedSem===s.id
 <div>
 
 <p className="font-medium mb-2">
-Subject
+
+Subjects
+
 </p>
 
 <div className="flex flex-wrap gap-2">
 
 {
-filteredSubjects.length===0
-
-?
-
-(
-<p>
-
-Select Department and Semester
-
-</p>
-)
-
-:
-
 filteredSubjects.map(
 s=>(
 
@@ -392,15 +505,18 @@ s.id
 }
 className={
 
-selectedSubject===s.id
+selectedSubject
+===
+
+s.id
 
 ?
 
-"px-4 py-2 rounded bg-black text-white"
+"px-3 py-2 rounded bg-black text-white"
 
 :
 
-"px-4 py-2 rounded border"
+"px-3 py-2 rounded border"
 
 }
 >
@@ -457,8 +573,7 @@ value={t.value}
 type="file"
 onChange={(e)=>
 setFile(
-e.target
-.files?.[0]
+e.target.files?.[0]
 ||
 null
 )
