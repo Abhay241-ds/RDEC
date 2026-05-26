@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+
 import { Input } from "@/components/ui/input";
+
 import {
 Select,
 SelectContent,
@@ -11,7 +13,9 @@ SelectValue,
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
+
 import { supabase } from "@/lib/supabaseClient";
+
 import { TYPES } from "@/lib/constants";
 
 type Dept={
@@ -35,6 +39,7 @@ semester_id:string;
 export default function UploadPage(){
 
 const [title,setTitle]=useState("");
+
 const [type,setType]=useState("");
 
 const [
@@ -55,7 +60,9 @@ setSelectedSubject
 const [
 file,
 setFile
-]=useState<File|null>(null);
+]=useState<File|null>(
+null
+);
 
 const [
 departments,
@@ -84,7 +91,7 @@ setMessage
 
 useEffect(()=>{
 
-(async()=>{
+async function load(){
 
 const dept=
 await supabase
@@ -116,7 +123,9 @@ setSubjects(
 sub.data||[]
 );
 
-})();
+}
+
+load();
 
 },[]);
 
@@ -124,14 +133,10 @@ const filteredSubjects=
 useMemo(()=>{
 
 return subjects.filter(
-
 s=>
 
 (
-
-selectedDeptIds.length===0
-
-||
+selectedDeptIds.length===0||
 
 selectedDeptIds.includes(
 s.department_id
@@ -142,14 +147,10 @@ s.department_id
 &&
 
 (
-
-!selectedSem
-
-||
+!selectedSem||
 
 selectedSem===
 s.semester_id
-
 )
 
 );
@@ -179,10 +180,14 @@ return;
 
 try{
 
-setLoading(true);
+setLoading(
+true
+);
+
+setMessage("");
 
 const {
-data:user
+data:userData
 }
 =
 await supabase
@@ -190,7 +195,7 @@ await supabase
 .getUser();
 
 const uid=
-user.user?.id;
+userData.user?.id;
 
 if(
 !uid
@@ -234,7 +239,9 @@ await supabase
 .from(
 "resources"
 )
-.insert([{
+.insert([
+
+{
 
 title,
 
@@ -252,7 +259,9 @@ status:
 uploader_id:
 uid
 
-}]);
+}
+
+]);
 
 if(
 insert.error
@@ -266,6 +275,18 @@ setMessage(
 "Uploaded successfully. Waiting for admin approval."
 );
 
+setTitle("");
+
+setType("");
+
+setSelectedSubject("");
+
+setSelectedSem("");
+
+setSelectedDeptIds([]);
+
+setFile(null);
+
 }
 catch(
 e:any
@@ -277,7 +298,9 @@ e.message
 
 }
 
-setLoading(false);
+setLoading(
+false
+);
 
 }
 
@@ -296,7 +319,7 @@ className="text-blue-700"
 
 </a>
 
-<div className="bg-white rounded-3xl shadow-lg mt-6 p-8">
+<div className="mt-6 bg-white rounded-3xl shadow-lg p-8">
 
 <h1 className="text-4xl font-bold">
 
@@ -309,18 +332,16 @@ Upload Resource
 <div>
 
 <label className="font-semibold">
-
 Title
-
 </label>
 
 <Input
+placeholder="Enter title"
 value={title}
 onChange={(e)=>
 setTitle(
 e.target.value
 )}
-placeholder="Enter title"
 />
 
 </div>
@@ -337,19 +358,12 @@ Department
 
 <button
 type="button"
-className="
-bg-black
-text-white
-px-4
-py-2
-rounded
-"
+className="bg-black text-white px-4 py-2 rounded"
 
 onClick={()=>{
 
 if(
-selectedDeptIds.length
-===
+selectedDeptIds.length===
 departments.length
 ){
 
@@ -385,7 +399,6 @@ d=>(
 
 <button
 key={d.id}
-
 type="button"
 
 onClick={()=>{
@@ -397,22 +410,23 @@ d.id
 ){
 
 setSelectedDeptIds(
-
-selectedDeptIds.filter(
+prev=>
+prev.filter(
 x=>
 x!==d.id
 )
-
 );
 
 }
 
 else{
 
-setSelectedDeptIds([
-...selectedDeptIds,
+setSelectedDeptIds(
+prev=>[
+...prev,
 d.id
-]);
+]
+);
 
 }
 
@@ -455,7 +469,7 @@ Semester
 
 </label>
 
-<div className="flex gap-3 mt-4">
+<div className="flex gap-3 mt-4 flex-wrap">
 
 {
 semesters.map(
@@ -507,7 +521,7 @@ Subject
 
 </label>
 
-<div className="flex flex-wrap gap-3 mt-4">
+<div className="flex gap-3 flex-wrap mt-4">
 
 {
 filteredSubjects.map(
@@ -557,11 +571,13 @@ selectedSubject===s.id
 
 Type
 
-label>
+</label>
 
 <Select
 value={type}
-onValueChange={setType}
+onValueChange={
+setType
+}
 >
 
 <SelectTrigger>
@@ -638,9 +654,13 @@ null
 
 {
 file&&(
+
 <span className="ml-4">
+
 {file.name}
+
 </span>
+
 )
 }
 
@@ -675,9 +695,13 @@ loading
 
 {
 message&&(
+
 <p>
+
 {message}
+
 </p>
+
 )
 }
 
