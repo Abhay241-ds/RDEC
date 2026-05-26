@@ -39,56 +39,68 @@ semester_id:string;
 export default function UploadPage(){
 
 const [title,setTitle]=useState("");
+
 const [type,setType]=useState("");
 
 const [
 selectedDeptIds,
 setSelectedDeptIds
-]=useState<string[]>([]);
+]=
+useState<string[]>([]);
 
 const [
 selectedSem,
 setSelectedSem
-]=useState("");
+]=
+useState("");
 
 const [
 selectedSubject,
 setSelectedSubject
-]=useState("");
+]=
+useState("");
 
 const [
 file,
 setFile
-]=useState<File|null>(null);
+]=
+useState<File|null>(
+null
+);
 
 const [
 departments,
 setDepartments
-]=useState<Dept[]>([]);
+]=
+useState<Dept[]>([]);
 
 const [
 semesters,
 setSemesters
-]=useState<Sem[]>([]);
+]=
+useState<Sem[]>([]);
 
 const [
 subjects,
 setSubjects
-]=useState<Subj[]>([]);
+]=
+useState<Subj[]>([]);
 
 const [
 loading,
 setLoading
-]=useState(false);
+]=
+useState(false);
 
 const [
 message,
 setMessage
-]=useState("");
+]=
+useState("");
 
 useEffect(()=>{
 
-(async()=>{
+async function load(){
 
 const dept=
 await supabase
@@ -120,18 +132,17 @@ setSubjects(
 sub.data||[]
 );
 
-})();
+}
+
+load();
 
 },[]);
 
 const filteredSubjects=
 useMemo(()=>{
 
-const unique=
-new Map();
-
-subjects
-.filter(
+const filtered=
+subjects.filter(
 s=>
 
 (
@@ -153,9 +164,12 @@ selectedSem
 
 )
 
-)
+);
 
-.forEach(
+const unique=
+new Map();
+
+filtered.forEach(
 s=>{
 
 if(
@@ -200,9 +214,11 @@ return;
 
 }
 
-setLoading(true);
-
 try{
+
+setLoading(
+true
+);
 
 const {
 data:user
@@ -219,9 +235,11 @@ if(
 !uid
 ){
 
-throw new Error(
+setMessage(
 "Login required"
 );
+
+return;
 
 }
 
@@ -233,17 +251,33 @@ file.name
 const path=
 `${uid}/${Date.now()}.${ext}`;
 
+const upload=
 await supabase
 .storage
-.from("resources")
+.from(
+"resources"
+)
 .upload(
 path,
 file
 );
 
+if(
+upload.error
+){
+
+throw upload.error;
+
+}
+
+const insert=
 await supabase
-.from("resources")
-.insert([{
+.from(
+"resources"
+)
+.insert([
+
+{
 
 title,
 
@@ -261,10 +295,20 @@ status:
 uploader_id:
 uid
 
-}]);
+}
+
+]);
+
+if(
+insert.error
+){
+
+throw insert.error;
+
+}
 
 setMessage(
-"Uploaded successfully"
+"Uploaded successfully. Waiting for admin approval."
 );
 
 }
@@ -278,7 +322,9 @@ e.message
 
 }
 
-setLoading(false);
+setLoading(
+false
+);
 
 }
 
@@ -297,13 +343,15 @@ className="text-blue-700"
 
 </a>
 
-<div className="mt-5 bg-white rounded-3xl shadow-lg p-8 space-y-8">
+<div className="mt-6 bg-white rounded-3xl shadow-lg p-8">
 
 <h1 className="text-4xl font-bold">
 
 Upload Resource
 
 </h1>
+
+<div className="mt-8 space-y-8">
 
 <div>
 
@@ -336,7 +384,13 @@ Department
 
 <button
 type="button"
-className="bg-black text-white px-4 py-2 rounded"
+className="
+bg-black
+text-white
+px-4
+py-2
+rounded
+"
 
 onClick={()=>{
 
@@ -370,15 +424,15 @@ Select All
 
 </div>
 
-<div className="mt-3 flex flex-wrap gap-3">
+<div className="flex flex-wrap gap-3 mt-4">
 
 {
-
 departments.map(
 d=>(
 
 <button
 key={d.id}
+
 type="button"
 
 onClick={()=>{
@@ -390,9 +444,12 @@ d.id
 ){
 
 setSelectedDeptIds(
+
 selectedDeptIds.filter(
-x=>x!==d.id
+x=>
+x!==d.id
 )
+
 );
 
 }
@@ -431,7 +488,6 @@ d.id
 </button>
 
 ))
-
 }
 
 </div>
@@ -446,15 +502,15 @@ Semester
 
 </label>
 
-<div className="mt-3 flex gap-3">
+<div className="flex gap-3 mt-4">
 
 {
-
 semesters.map(
 s=>(
 
 <button
 key={s.id}
+
 type="button"
 
 onClick={()=>
@@ -484,7 +540,6 @@ selectedSem===s.id
 </button>
 
 ))
-
 }
 
 </div>
@@ -499,15 +554,15 @@ Subject
 
 </label>
 
-<div className="mt-3 flex flex-wrap gap-3">
+<div className="flex flex-wrap gap-3 mt-4">
 
 {
-
 filteredSubjects.map(
 s=>(
 
 <button
 key={s.id}
+
 type="button"
 
 onClick={()=>
@@ -537,7 +592,6 @@ selectedSubject===s.id
 </button>
 
 ))
-
 }
 
 </div>
@@ -593,34 +647,74 @@ value={t.value}
 
 <div>
 
-<label className="font-semibold">
+<label className="font-semibold block mb-3">
 
 Upload File
 
 </label>
 
+<label
+className="
+inline-flex
+items-center
+justify-center
+px-5
+py-3
+bg-black
+text-white
+rounded-xl
+cursor-pointer
+"
+>
+
+Choose File
+
 <input
+hidden
 type="file"
-className="mt-3"
+
+onChange={(e)=>
+setFile(
+e.target.files?.[0]
+||
+null
+)
+}
+
 />
+
+</label>
+
+{
+file&&(
+
+<span className="ml-4">
+
+{file.name}
+
+</span>
+
+)
+}
 
 </div>
 
 <Button
-className="w-full"
+onClick={
+onSubmit
+}
 
 disabled={
 loading
 }
 
-onClick={
-onSubmit
-}
+className="
+w-full
+"
 
 >
 
 {
-
 loading
 
 ?
@@ -629,23 +723,23 @@ loading
 
 :
 
-"Upload Resource"
+"Upload"
 
 }
 
 </Button>
 
 {
-
-message&&
-
+message&&(
 <p>
 
 {message}
 
 </p>
-
+)
 }
+
+</div>
 
 </div>
 
