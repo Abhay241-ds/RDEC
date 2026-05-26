@@ -42,73 +42,44 @@ const [title,setTitle]=useState("");
 
 const [type,setType]=useState("");
 
-const [
-selectedDeptIds,
-setSelectedDeptIds
-]=
+const [selectedDeptIds,setSelectedDeptIds]=
 useState<string[]>([]);
 
-const [
-selectedSem,
-setSelectedSem
-]=
+const [selectedSem,setSelectedSem]=
 useState("");
 
-const [
-selectedSubject,
-setSelectedSubject
-]=
+const [selectedSubject,setSelectedSubject]=
 useState("");
 
-const [
-file,
-setFile
-]=
-useState<File|null>(
-null
-);
+const [file,setFile]=
+useState<File|null>(null);
 
-const [
-departments,
-setDepartments
-]=
+const [departments,setDepartments]=
 useState<Dept[]>([]);
 
-const [
-semesters,
-setSemesters
-]=
+const [semesters,setSemesters]=
 useState<Sem[]>([]);
 
-const [
-subjects,
-setSubjects
-]=
+const [subjects,setSubjects]=
 useState<Subj[]>([]);
 
-const [
-loading,
-setLoading
-]=
+const [loading,setLoading]=
 useState(false);
 
-const [
-message,
-setMessage
-]=
+const [message,setMessage]=
 useState("");
 
 useEffect(()=>{
 
-async function load(){
+(async()=>{
 
-const dept=
+const d=
 await supabase
 .from("departments")
 .select("*")
 .order("code");
 
-const sem=
+const s=
 await supabase
 .from("semesters")
 .select("*")
@@ -121,32 +92,33 @@ await supabase
 .order("name");
 
 setDepartments(
-dept.data||[]
+d.data||[]
 );
 
 setSemesters(
-sem.data||[]
+s.data||[]
 );
 
 setSubjects(
 sub.data||[]
 );
 
-}
-
-load();
+})();
 
 },[]);
 
 const filteredSubjects=
 useMemo(()=>{
 
-const filtered=
-subjects.filter(
+return subjects.filter(
+
 s=>
 
 (
-selectedDeptIds.length===0||
+
+selectedDeptIds.length===0
+
+||
 
 selectedDeptIds.includes(
 s.department_id
@@ -157,7 +129,10 @@ s.department_id
 &&
 
 (
-!selectedSem||
+
+!selectedSem
+
+||
 
 s.semester_id===
 selectedSem
@@ -166,32 +141,8 @@ selectedSem
 
 );
 
-const unique=
-new Map();
-
-filtered.forEach(
-s=>{
-
-if(
-!unique.has(
-s.name
-)
-){
-
-unique.set(
-s.name,
-s
-);
-
-}
-
-});
-
-return Array.from(
-unique.values()
-);
-
-},[
+},
+[
 subjects,
 selectedDeptIds,
 selectedSem
@@ -235,18 +186,16 @@ if(
 !uid
 ){
 
-setMessage(
+throw new Error(
 "Login required"
 );
-
-return;
 
 }
 
 const ext=
 file.name
 .split(".")
-.pop();
+pop();
 
 const path=
 `${uid}/${Date.now()}.${ext}`;
@@ -254,9 +203,7 @@ const path=
 const upload=
 await supabase
 .storage
-.from(
-"resources"
-)
+.from("resources")
 .upload(
 path,
 file
@@ -264,20 +211,13 @@ file
 
 if(
 upload.error
-){
-
+)
 throw upload.error;
-
-}
 
 const insert=
 await supabase
-.from(
-"resources"
-)
-.insert([
-
-{
+.from("resources")
+.insert([{
 
 title,
 
@@ -295,17 +235,12 @@ status:
 uploader_id:
 uid
 
-}
-
-]);
+}]);
 
 if(
 insert.error
-){
-
+)
 throw insert.error;
-
-}
 
 setMessage(
 "Uploaded successfully. Waiting for admin approval."
@@ -343,15 +278,13 @@ className="text-blue-700"
 
 </a>
 
-<div className="mt-6 bg-white rounded-3xl shadow-lg p-8">
+<div className="bg-white rounded-3xl shadow-lg mt-6 p-8 space-y-8">
 
 <h1 className="text-4xl font-bold">
 
 Upload Resource
 
 </h1>
-
-<div className="mt-8 space-y-8">
 
 <div>
 
@@ -395,8 +328,7 @@ rounded
 onClick={()=>{
 
 if(
-selectedDeptIds.length
-===
+selectedDeptIds.length===
 departments.length
 ){
 
@@ -427,25 +359,48 @@ Select All
 <div className="flex flex-wrap gap-3 mt-4">
 
 {
+
 departments.map(
 d=>(
 
-<button
+<label
 key={d.id}
+>
 
-type="button"
+<input
 
-onClick={()=>{
+hidden
 
-if(
+type="checkbox"
+
+checked={
 selectedDeptIds.includes(
 d.id
 )
+}
+
+onChange={(e)=>{
+
+if(
+e.target.checked
 ){
 
 setSelectedDeptIds(
+prev=>[
+...prev,
+d.id
+]
+);
 
-selectedDeptIds.filter(
+}
+
+else{
+
+setSelectedDeptIds(
+
+prev=>
+
+prev.filter(
 x=>
 x!==d.id
 )
@@ -454,16 +409,13 @@ x!==d.id
 
 }
 
-else{
-
-setSelectedDeptIds([
-...selectedDeptIds,
-d.id
-]);
-
-}
-
 }}
+
+>
+
+</input>
+
+<div
 
 className={
 
@@ -485,9 +437,12 @@ d.id
 
 {d.code}
 
-</button>
+</div>
+
+</label>
 
 ))
+
 }
 
 </div>
@@ -687,31 +642,22 @@ null
 
 {
 file&&(
-
 <span className="ml-4">
-
 {file.name}
-
 </span>
-
 )
 }
 
 </div>
 
 <Button
+className="w-full"
 onClick={
 onSubmit
 }
-
 disabled={
 loading
 }
-
-className="
-w-full
-"
-
 >
 
 {
@@ -732,14 +678,10 @@ loading
 {
 message&&(
 <p>
-
 {message}
-
 </p>
 )
 }
-
-</div>
 
 </div>
 
