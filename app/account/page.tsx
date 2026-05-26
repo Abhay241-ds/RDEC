@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 export default function AccountPage() {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
+  <a href="/" className="text-blue-800 dark:text-blue-900">← Home</a>
 
   useEffect(() => {
     let mounted = true;
