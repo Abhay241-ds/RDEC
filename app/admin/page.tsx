@@ -165,34 +165,99 @@ export default function AdminPage(){
     })();
   }, []);
 
-  const decide = async (filePath: string, ids: string[], decision: "approved"|"rejected") => {
-    setStatus(null);
-    const { data: user } = await supabase.auth.getUser();
-    const uid = user.user?.id;
-    if(!uid){ setStatus("Not signed in."); return; }
+  const decide =
+async (
+filePath,
+ids,
+decision
+) => {
 
-    // If rejecting, also remove the underlying file from storage so only approved files remain
-    if (decision === "rejected" && filePath) {
-      console.log("[admin] Reject - removing from storage", filePath);
-      const { data: storageData, error: storageError } = await supabase.storage.from("resources").remove([filePath]);
-      console.log("[admin] Reject - storage remove result", { storageData, storageError });
-      if (storageError) { setStatus(storageError.message); return; }
-    }
+setStatus(
+null
+);
 
-    const { error: updErr } = await supabase
-      .from("resources")
-      .update({ status: decision })
-      .eq("file_path", filePath)
-      .eq("status","pending");
-    if (updErr){ setStatus(updErr.message); return; }
-    if (ids.length > 0) {
-      await supabase.from("approvals").insert(
-        ids.map(id => ({ resource_id: id, reviewer_id: uid, decision }))
-      );
-    }
-    setItems(prev => prev.filter(x=>x.file_path !== filePath));
-    setStatus(decision === "approved" ? "Resource approved successfully." : "Resource rejected successfully.");
-  };
+const {
+error
+}
+=
+await supabase
+.from(
+"resources"
+)
+.update({
+
+status:
+decision
+
+})
+.eq(
+"file_path",
+filePath
+);
+
+if (
+error
+) {
+
+setStatus(
+error.message
+);
+
+return;
+
+}
+
+if (
+ids.length
+) {
+
+await supabase
+.from(
+"approvals"
+)
+.insert(
+
+ids.map(
+id => ({
+
+resource_id:
+id,
+
+decision
+
+})
+
+)
+
+);
+
+}
+
+await load();
+
+const approved =
+await loadApproved();
+
+setApprovedItems(
+approved
+);
+
+setStatus(
+
+decision ===
+"approved"
+
+?
+
+"Approved"
+
+:
+
+"Rejected"
+
+);
+
+};
 
   const openFile = async (path: string) => {
     try {
