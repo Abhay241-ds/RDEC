@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+
 import { Input } from "@/components/ui/input";
+
 import {
 Select,
 SelectContent,
@@ -9,8 +11,11 @@ SelectItem,
 SelectTrigger,
 SelectValue,
 } from "@/components/ui/select";
+
 import { Button } from "@/components/ui/button";
+
 import { supabase } from "@/lib/supabaseClient";
+
 import { TYPES } from "@/lib/constants";
 
 type Dept = {
@@ -36,50 +41,32 @@ export default function UploadPage(){
 const [title,setTitle]=useState("");
 const [type,setType]=useState("");
 
-const [
-selectedDeptIds,
-setSelectedDeptIds
-]=useState<string[]>([]);
+const [selectedDeptIds,setSelectedDeptIds]=
+useState<string[]>([]);
 
-const [
-selectedSem,
-setSelectedSem
-]=useState("");
+const [selectedSem,setSelectedSem]=
+useState("");
 
-const [
-selectedSubject,
-setSelectedSubject
-]=useState("");
+const [selectedSubject,setSelectedSubject]=
+useState("");
 
-const [
-file,
-setFile
-]=useState<File|null>(null);
+const [file,setFile]=
+useState<File|null>(null);
 
-const [
-departments,
-setDepartments
-]=useState<Dept[]>([]);
+const [departments,setDepartments]=
+useState<Dept[]>([]);
 
-const [
-semesters,
-setSemesters
-]=useState<Sem[]>([]);
+const [semesters,setSemesters]=
+useState<Sem[]>([]);
 
-const [
-subjects,
-setSubjects
-]=useState<Subj[]>([]);
+const [subjects,setSubjects]=
+useState<Subj[]>([]);
 
-const [
-loading,
-setLoading
-]=useState(false);
+const [loading,setLoading]=
+useState(false);
 
-const [
-message,
-setMessage
-]=useState("");
+const [message,setMessage]=
+useState("");
 
 useEffect(()=>{
 
@@ -157,7 +144,7 @@ s.semester_id
 );
 
 const seen=
-new Set();
+new Set<string>();
 
 return filtered.filter(
 s=>{
@@ -167,14 +154,18 @@ s.name
 .toLowerCase();
 
 if(
-seen.has(key)
+seen.has(
+key
+)
 ){
 
 return false;
 
 }
 
-seen.add(key);
+seen.add(
+key
+);
 
 return true;
 
@@ -254,7 +245,7 @@ throw upload.error;
 
 }
 
-const subjectName=
+const selectedName=
 subjects.find(
 s=>
 s.id===
@@ -263,8 +254,8 @@ selectedSubject
 
 const rows=
 subjects
-
 .filter(
+
 s=>
 
 selectedDeptIds.includes(
@@ -284,7 +275,7 @@ s.semester_id
 &&
 
 s.name===
-subjectName
+selectedName
 
 )
 
@@ -313,9 +304,7 @@ uid
 
 const insert=
 await supabase
-.from(
-"resources"
-)
+.from("resources")
 .insert(
 rows
 );
@@ -329,8 +318,15 @@ throw insert.error;
 }
 
 setMessage(
-"Uploaded successfully"
+"Uploaded successfully. Waiting for admin approval."
 );
+
+setTitle("");
+setType("");
+setSelectedSem("");
+setSelectedSubject("");
+setSelectedDeptIds([]);
+setFile(null);
 
 }
 catch(
@@ -343,15 +339,13 @@ e.message
 
 }
 
-setLoading(
-false
-);
+setLoading(false);
 
 }
 
 return(
 
-<div className="bg-slate-50 min-h-screen">
+<div className="min-h-screen bg-slate-50">
 
 <div className="max-w-5xl mx-auto p-8">
 
@@ -364,7 +358,7 @@ className="text-blue-700"
 
 </a>
 
-<div className="bg-white rounded-3xl shadow-lg p-8 mt-6">
+<div className="bg-white mt-6 rounded-3xl shadow-lg p-8">
 
 <h1 className="text-4xl font-bold">
 
@@ -372,22 +366,32 @@ Upload Resource
 
 </h1>
 
-<div className="mt-8 space-y-8">
+<div className="space-y-8 mt-8">
+
+<div>
+
+<label className="font-semibold">
+
+Title
+
+</label>
 
 <Input
-placeholder="Title"
 value={title}
 onChange={(e)=>
 setTitle(
 e.target.value
 )}
+placeholder="Enter title"
 />
+
+</div>
 
 <div>
 
 <div className="flex justify-between">
 
-<label>
+<label className="font-semibold">
 
 Department
 
@@ -395,14 +399,7 @@ Department
 
 <button
 type="button"
-
-className="
-bg-black
-text-white
-px-4
-py-2
-rounded
-"
+className="bg-black text-white px-4 py-2 rounded"
 
 onClick={()=>{
 
@@ -435,16 +432,14 @@ Select All
 
 </div>
 
-<div className="flex flex-wrap gap-3 mt-3">
+<div className="flex flex-wrap gap-3 mt-4">
 
 {
-
 departments.map(
 d=>(
 
 <button
 key={d.id}
-
 type="button"
 
 onClick={()=>{
@@ -456,14 +451,11 @@ d.id
 ){
 
 setSelectedDeptIds(
-
 prev=>
-
 prev.filter(
 x=>
 x!==d.id
 )
-
 );
 
 }
@@ -489,11 +481,11 @@ d.id
 
 ?
 
-"bg-blue-700 text-white rounded-xl px-4 py-3"
+"bg-blue-700 text-white px-5 py-3 rounded-xl"
 
 :
 
-"border rounded-xl px-4 py-3"
+"border px-5 py-3 rounded-xl"
 
 }
 
@@ -504,7 +496,6 @@ d.id
 </button>
 
 ))
-
 }
 
 </div>
@@ -513,22 +504,20 @@ d.id
 
 <div>
 
-<label>
+<label className="font-semibold">
 
 Semester
 
 </label>
 
-<div className="flex gap-3 mt-3">
+<div className="flex gap-3 mt-4">
 
 {
-
 semesters.map(
 s=>(
 
 <button
 key={s.id}
-
 type="button"
 
 onClick={()=>
@@ -543,11 +532,11 @@ selectedSem===s.id
 
 ?
 
-"bg-green-700 text-white rounded-xl px-5 py-3"
+"bg-green-700 text-white px-5 py-3 rounded-xl"
 
 :
 
-"border rounded-xl px-5 py-3"
+"border px-5 py-3 rounded-xl"
 
 }
 
@@ -558,7 +547,6 @@ selectedSem===s.id
 </button>
 
 ))
-
 }
 
 </div>
@@ -567,22 +555,20 @@ selectedSem===s.id
 
 <div>
 
-<label>
+<label className="font-semibold">
 
 Subject
 
 </label>
 
-<div className="flex flex-wrap gap-3 mt-3">
+<div className="flex flex-wrap gap-3 mt-4">
 
 {
-
 filteredSubjects.map(
 s=>(
 
 <button
 key={s.id}
-
 type="button"
 
 onClick={()=>
@@ -597,11 +583,11 @@ selectedSubject===s.id
 
 ?
 
-"bg-purple-700 text-white rounded-xl px-5 py-3"
+"bg-purple-700 text-white px-5 py-3 rounded-xl"
 
 :
 
-"border rounded-xl px-5 py-3"
+"border px-5 py-3 rounded-xl"
 
 }
 
@@ -612,26 +598,27 @@ selectedSubject===s.id
 </button>
 
 ))
-
 }
 
 </div>
 
 </div>
+
+<div>
+
+<label className="font-semibold">
+
+Type
+
+</label>
 
 <Select
 value={type}
-onValueChange={
-setType
-}
+onValueChange={setType}
 >
 
 <SelectTrigger>
-
-<SelectValue
-placeholder="Select Type"
-/>
-
+<SelectValue placeholder="Select Type"/>
 </SelectTrigger>
 
 <SelectContent>
@@ -656,9 +643,11 @@ value={t.value}
 
 </Select>
 
+</div>
+
 <div>
 
-<label>
+<label className="font-semibold">
 
 Upload File
 
@@ -666,16 +655,7 @@ Upload File
 
 <div className="mt-3">
 
-<label
-className="
-bg-black
-text-white
-px-5
-py-3
-rounded
-cursor-pointer
-"
->
+<label className="bg-black text-white px-5 py-3 rounded cursor-pointer">
 
 Choose File
 
@@ -708,36 +688,27 @@ file&&(
 
 <Button
 className="w-full"
-onClick={
-onSubmit
-}
-disabled={
-loading
-}
+onClick={onSubmit}
+disabled={loading}
 >
 
 {
 loading
-
 ?
-
 "Uploading..."
-
 :
-
 "Upload"
-
 }
 
 </Button>
 
 {
 message&&(
-<p>
-{message}
-</p>
+<p>{message}</p>
 )
 }
+
+</div>
 
 </div>
 
