@@ -71,7 +71,7 @@ useState("");
 
 useEffect(()=>{
 
-async function load(){
+(async()=>{
 
 const dept=
 await supabase
@@ -103,17 +103,18 @@ setSubjects(
 sub.data||[]
 );
 
-}
-
-load();
+})();
 
 },[]);
 
 const filteredSubjects=
 useMemo(()=>{
 
-const filtered=
-subjects.filter(
+const unique=
+new Map();
+
+subjects
+.filter(
 s=>
 
 (
@@ -130,17 +131,14 @@ s.department_id
 (
 !selectedSem||
 
-s.semester_id===
-selectedSem
+selectedSem===
+s.semester_id
 
 )
 
-);
+)
 
-const unique=
-new Map();
-
-filtered.forEach(
+.forEach(
 s=>{
 
 if(
@@ -159,7 +157,8 @@ s
 });
 
 return Array.from(
-unique.values());
+unique.values()
+);
 
 },[
 subjects,
@@ -200,22 +199,16 @@ await supabase
 .auth
 .getUser();
 
-const userId=
+const uid=
 userData.user?.id;
 
 if(
-!userId
+!uid
 ){
 
-setMessage(
-"Login required"
+throw new Error(
+"Please login"
 );
-
-setLoading(
-false
-);
-
-return;
 
 }
 
@@ -224,8 +217,8 @@ file.name
 .split(".")
 .pop();
 
-const path=
-`${userId}/${Date.now()}.${ext}`;
+const filePath=
+`${uid}/${Date.now()}.${ext}`;
 
 const {
 error:
@@ -238,18 +231,21 @@ await supabase
 "resources"
 )
 .upload(
-path,
+filePath,
 file
 );
 
 if(
 uploadErr
-)
+){
+
 throw uploadErr;
+
+}
 
 const {
 error:
-dbErr
+insertErr
 }
 =
 await supabase
@@ -268,26 +264,25 @@ subject_id:
 selectedSubject,
 
 file_path:
-path,
+filePath,
 
 status:
 "pending",
 
 uploader_id:
-userId,
-
-created_at:
-new Date()
-.toISOString()
+uid
 
 }
 
 ]);
 
 if(
-dbErr
-)
-throw dbErr;
+insertErr
+){
+
+throw insertErr;
+
+}
 
 setMessage(
 "Uploaded successfully. Waiting for admin approval."
@@ -324,7 +319,7 @@ false
 
 return(
 
-<div className="bg-slate-50 min-h-screen">
+<div className="min-h-screen bg-slate-100">
 
 <div className="max-w-4xl mx-auto p-8">
 
@@ -337,22 +332,21 @@ className="text-blue-700"
 
 </a>
 
-<h1 className="text-3xl font-bold mt-4">
+<div className="mt-5 bg-white rounded-3xl p-8 shadow">
+
+<h1 className="text-4xl font-bold">
 
 Upload Resource
 
 </h1>
 
-<div
-className="
-mt-6
-bg-white
-border
-rounded-lg
-p-6
-space-y-5
-"
->
+<p className="text-gray-500 mt-2">
+
+Upload notes and study resources
+
+</p>
+
+<div className="mt-8 space-y-6">
 
 <Input
 placeholder="Title"
@@ -363,37 +357,34 @@ e.target.value
 )}
 />
 
-<div>
-
-<p className="font-medium mb-2">
-
-Departments
-
-</p>
-
-<div className="flex flex-wrap gap-2">
+<div className="flex flex-wrap gap-3">
 
 {
 
 departments.map(
 d=>(
 
-<label
+<button
 key={d.id}
->
+type="button"
+onClick={()=>{
 
-<input
-type="checkbox"
-checked={
+if(
 selectedDeptIds.includes(
 d.id
 )
-}
-onChange={(e)=>{
-
-if(
-e.target.checked
 ){
+
+setSelectedDeptIds(
+selectedDeptIds.filter(
+x=>
+x!==d.id
+)
+);
+
+}
+
+else{
 
 setSelectedDeptIds([
 ...selectedDeptIds,
@@ -402,25 +393,29 @@ d.id
 
 }
 
-else{
+}}
 
-setSelectedDeptIds(
+className={
 
-selectedDeptIds.filter(
-x=>
-x!==d.id
+selectedDeptIds.includes(
+d.id
 )
 
-);
+?
+
+"bg-blue-700 text-white px-4 py-2 rounded-xl"
+
+:
+
+"border px-4 py-2 rounded-xl"
 
 }
 
-}}
-/>
+>
 
 {d.code}
 
-</label>
+</button>
 
 ))
 
@@ -428,17 +423,101 @@ x!==d.id
 
 </div>
 
+<div className="flex gap-3">
+
+{
+
+semesters.map(
+s=>(
+
+<button
+key={s.id}
+type="button"
+onClick={()=>
+setSelectedSem(
+s.id
+)
+}
+
+className={
+
+selectedSem===s.id
+
+?
+
+"bg-green-700 text-white px-4 py-2 rounded-xl"
+
+:
+
+"border px-4 py-2 rounded-xl"
+
+}
+
+>
+
+Sem {s.number}
+
+</button>
+
+))
+
+}
+
+</div>
+
+<div className="flex flex-wrap gap-3">
+
+{
+
+filteredSubjects.map(
+s=>(
+
+<button
+key={s.id}
+type="button"
+onClick={()=>
+setSelectedSubject(
+s.id
+)
+}
+
+className={
+
+selectedSubject===s.id
+
+?
+
+"bg-black text-white px-4 py-2 rounded-xl"
+
+:
+
+"border px-4 py-2 rounded-xl"
+
+}
+
+>
+
+{s.name}
+
+</button>
+
+))
+
+}
+
 </div>
 
 <Select
 value={type}
-onValueChange={setType}
+onValueChange={
+setType
+}
 >
 
 <SelectTrigger>
 
 <SelectValue
-placeholder="Type"
+placeholder="Select Type"
 />
 
 </SelectTrigger>
@@ -465,7 +544,10 @@ value={t.value}
 
 </Select>
 
+<label className="block">
+
 <input
+hidden
 type="file"
 onChange={(e)=>
 setFile(
@@ -476,7 +558,28 @@ null
 }
 />
 
+<div className="border-2 border-dashed rounded-2xl h-40 flex items-center justify-center cursor-pointer">
+
+{
+
+file
+
+?
+
+file.name
+
+:
+
+"Choose File"
+
+}
+
+</div>
+
+</label>
+
 <Button
+className="w-full"
 onClick={
 onSubmit
 }
@@ -486,6 +589,7 @@ loading
 >
 
 {
+
 loading
 
 ?
@@ -494,7 +598,7 @@ loading
 
 :
 
-"Upload"
+"Upload Resource"
 
 }
 
@@ -504,13 +608,15 @@ loading
 
 message&&
 
-<p>
+<p className="text-center">
 
 {message}
 
 </p>
 
 }
+
+</div>
 
 </div>
 
