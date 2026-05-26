@@ -164,98 +164,70 @@ export default function AdminPage(){
       if (!sems.error && sems.data) setSemRows(sems.data as any);
     })();
   }, []);
-
-  const decide =
-async (
-filePath,
-ids,
-decision
+const decide = async (
+  filePath: string,
+  ids: string[],
+  decision: "approved" | "rejected"
 ) => {
 
-setStatus(
-null
-);
+  setStatus(null);
 
-const {
-error
-}
-=
-await supabase
-.from(
-"resources"
-)
-.update({
+  const { error } =
+    await supabase
+      .from("resources")
+      .update({
+        status: decision,
+      })
+      .eq(
+        "file_path",
+        filePath
+      );
 
-status:
-decision
+  if (error) {
+    setStatus(
+      error.message
+    );
+    return;
+  }
 
-})
-.eq(
-"file_path",
-filePath
-);
+  if (ids.length > 0) {
 
-if (
-error
-) {
+    await supabase
+      .from("approvals")
+      .insert(
 
-setStatus(
-error.message
-);
+        ids.map(
+          (id) => ({
+            resource_id:
+              id,
 
-return;
+            decision,
+          })
+        )
 
-}
+      );
 
-if (
-ids.length
-) {
+  }
 
-await supabase
-.from(
-"approvals"
-)
-.insert(
+  await load();
 
-ids.map(
-id => ({
+  const approved =
+    await loadApproved();
 
-resource_id:
-id,
+  setApprovedItems(
+    approved
+  );
 
-decision
+  setStatus(
 
-})
+    decision ===
+      "approved"
 
-)
+      ? "Approved"
 
-);
+      : "Rejected"
 
-}
-
-await load();
-
-const approved =
-await loadApproved();
-
-setApprovedItems(
-approved
-);
-
-setStatus(
-
-decision ===
-"approved"
-
-?
-
-"Approved"
-
-:
-
-"Rejected"
-
-);
+  );
 
 };
 
