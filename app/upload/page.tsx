@@ -129,14 +129,19 @@ load();
 
 },[]);
 
-const filteredSubjects=
-useMemo(()=>{
+const filteredSubjects =
+useMemo(() => {
 
-return subjects.filter(
-s=>
+const filtered =
+subjects.filter(
+
+(s)=>
 
 (
-selectedDeptIds.length===0||
+
+selectedDeptIds.length===0
+
+||
 
 selectedDeptIds.includes(
 s.department_id
@@ -147,19 +152,54 @@ s.department_id
 &&
 
 (
-!selectedSem||
+
+!selectedSem
+
+||
 
 selectedSem===
 s.semester_id
+
 )
 
 );
 
-},[
+const seen =
+new Set<string>();
+
+return filtered.filter(
+(s)=>{
+
+const key =
+s.name
+.trim()
+.toLowerCase();
+
+if(
+seen.has(
+key
+)
+){
+
+return false;
+
+}
+
+seen.add(
+key
+);
+
+return true;
+
+});
+
+},
+[
 subjects,
 selectedDeptIds,
 selectedSem
-]);
+]
+);
 
 async function onSubmit(){
 
