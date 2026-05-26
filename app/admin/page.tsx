@@ -269,22 +269,106 @@ decision ===
     }
   };
 
-  const deleteResource = async (path: string | null) => {
-    if (!window.confirm("Are you sure you want to delete this file and all its associated resources?")) return;
-    setStatus(null);
+  
+    const deleteResource = async (
+  path: string | null
+) => {
 
-    if (path) {
-      console.log("[admin] Delete - removing from storage", path);
-      const { data: storageData, error: storageError } = await supabase.storage.from("resources").remove([path]);
-      console.log("[admin] Delete - storage remove result", { storageData, storageError });
-      if (storageError) { setStatus(storageError.message); return; }
+  if (
+    !window.confirm(
+      "Are you sure?"
+    )
+  ) return;
+
+  setStatus(null);
+
+  try {
+
+    const {
+      data: rows
+    } = await supabase
+      .from("resources")
+      .select("id")
+      .eq(
+        "file_path",
+        path
+      );
+
+    const ids =
+      rows?.map(
+        x => x.id
+      ) || [];
+
+    if (
+      ids.length
+    ) {
+
+      await supabase
+        .from(
+          "approvals"
+        )
+        .delete()
+        .in(
+          "resource_id",
+          ids
+        );
+
     }
 
-    const { error } = await supabase.from("resources").delete().eq("file_path", path).eq("status","approved");
-    if (error) { setStatus(error.message); return; }
-    setApprovedItems(prev => prev.filter(x => x.file_path !== path));
-    setStatus("File and associated resources deleted successfully.");
-  };
+    if (path) {
+
+      await supabase
+        .storage
+        .from(
+          "resources"
+        )
+        .remove([
+          path
+        ]);
+
+    }
+
+    const {
+      error
+    } =
+      await supabase
+        .from(
+          "resources"
+        )
+        .delete()
+        .eq(
+          "file_path",
+          path
+        );
+
+    if (
+      error
+    )
+      throw error;
+
+    setApprovedItems(
+      prev =>
+        prev.filter(
+          x =>
+            x.file_path !==
+            path
+        )
+    );
+
+    setStatus(
+      "Deleted successfully"
+    );
+
+  } catch (
+    e: any
+  ) {
+
+    setStatus(
+      e.message
+    );
+
+  }
+};
 
   if(isAdmin === null) return <div className="max-w-5xl mx-auto px-4 py-8">Checking permissions...</div>;
   if(!isAdmin) return <div className="max-w-5xl mx-auto px-4 py-8">{status || "Admin access only."}</div>;
