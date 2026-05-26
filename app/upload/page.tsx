@@ -39,35 +39,52 @@ semester_id:string;
 export default function UploadPage(){
 
 const [title,setTitle]=useState("");
-
 const [type,setType]=useState("");
 
-const [selectedDeptIds,setSelectedDeptIds]=
-useState<string[]>([]);
+const [
+selectedDeptIds,
+setSelectedDeptIds
+]=useState<string[]>([]);
 
-const [selectedSem,setSelectedSem]=
-useState("");
+const [
+selectedSem,
+setSelectedSem
+]=useState("");
 
-const [selectedSubject,setSelectedSubject]=
-useState("");
+const [
+selectedSubject,
+setSelectedSubject
+]=useState("");
 
-const [file,setFile]=
-useState<File|null>(null);
+const [
+file,
+setFile
+]=useState<File|null>(null);
 
-const [departments,setDepartments]=
-useState<Dept[]>([]);
+const [
+departments,
+setDepartments
+]=useState<Dept[]>([]);
 
-const [semesters,setSemesters]=
-useState<Sem[]>([]);
+const [
+semesters,
+setSemesters
+]=useState<Sem[]>([]);
 
-const [subjects,setSubjects]=
-useState<Subj[]>([]);
+const [
+subjects,
+setSubjects
+]=useState<Subj[]>([]);
 
-const [loading,setLoading]=
-useState(false);
+const [
+loading,
+setLoading
+]=useState(false);
 
-const [message,setMessage]=
-useState("");
+const [
+message,
+setMessage
+]=useState("");
 
 useEffect(()=>{
 
@@ -131,8 +148,8 @@ s.department_id
 (
 !selectedSem||
 
-selectedSem===
-s.semester_id
+s.semester_id===
+selectedSem
 
 )
 
@@ -183,16 +200,12 @@ return;
 
 }
 
-setLoading(
-true
-);
-
-setMessage("");
+setLoading(true);
 
 try{
 
 const {
-data:userData
+data:user
 }
 =
 await supabase
@@ -200,14 +213,14 @@ await supabase
 .getUser();
 
 const uid=
-userData.user?.id;
+user.user?.id;
 
 if(
 !uid
 ){
 
 throw new Error(
-"Please login"
+"Login required"
 );
 
 }
@@ -217,44 +230,20 @@ file.name
 .split(".")
 .pop();
 
-const filePath=
+const path=
 `${uid}/${Date.now()}.${ext}`;
 
-const {
-error:
-uploadErr
-}
-=
 await supabase
 .storage
-.from(
-"resources"
-)
+.from("resources")
 .upload(
-filePath,
+path,
 file
 );
 
-if(
-uploadErr
-){
-
-throw uploadErr;
-
-}
-
-const {
-error:
-insertErr
-}
-=
 await supabase
-.from(
-"resources"
-)
-.insert([
-
-{
+.from("resources")
+.insert([{
 
 title,
 
@@ -264,7 +253,7 @@ subject_id:
 selectedSubject,
 
 file_path:
-filePath,
+path,
 
 status:
 "pending",
@@ -272,33 +261,11 @@ status:
 uploader_id:
 uid
 
-}
-
-]);
-
-if(
-insertErr
-){
-
-throw insertErr;
-
-}
+}]);
 
 setMessage(
-"Uploaded successfully. Waiting for admin approval."
+"Uploaded successfully"
 );
-
-setTitle("");
-
-setType("");
-
-setSelectedSubject("");
-
-setSelectedSem("");
-
-setSelectedDeptIds([]);
-
-setFile(null);
 
 }
 catch(
@@ -311,17 +278,15 @@ e.message
 
 }
 
-setLoading(
-false
-);
+setLoading(false);
 
 }
 
 return(
 
-<div className="min-h-screen bg-slate-100">
+<div className="bg-slate-50 min-h-screen">
 
-<div className="max-w-4xl mx-auto p-8">
+<div className="max-w-5xl mx-auto p-8">
 
 <a
 href="/"
@@ -332,7 +297,7 @@ className="text-blue-700"
 
 </a>
 
-<div className="mt-5 bg-white rounded-3xl p-8 shadow">
+<div className="mt-5 bg-white rounded-3xl shadow-lg p-8 space-y-8">
 
 <h1 className="text-4xl font-bold">
 
@@ -340,24 +305,72 @@ Upload Resource
 
 </h1>
 
-<p className="text-gray-500 mt-2">
+<div>
 
-Upload notes and study resources
+<label className="font-semibold">
 
-</p>
+Title
 
-<div className="mt-8 space-y-6">
+</label>
 
 <Input
-placeholder="Title"
 value={title}
 onChange={(e)=>
 setTitle(
 e.target.value
 )}
+placeholder="Enter title"
 />
 
-<div className="flex flex-wrap gap-3">
+</div>
+
+<div>
+
+<div className="flex justify-between">
+
+<label className="font-semibold">
+
+Department
+
+</label>
+
+<button
+type="button"
+className="bg-black text-white px-4 py-2 rounded"
+
+onClick={()=>{
+
+if(
+selectedDeptIds.length
+===
+departments.length
+){
+
+setSelectedDeptIds([]);
+
+}
+
+else{
+
+setSelectedDeptIds(
+departments.map(
+d=>d.id
+)
+);
+
+}
+
+}}
+
+>
+
+Select All
+
+</button>
+
+</div>
+
+<div className="mt-3 flex flex-wrap gap-3">
 
 {
 
@@ -367,6 +380,7 @@ d=>(
 <button
 key={d.id}
 type="button"
+
 onClick={()=>{
 
 if(
@@ -377,8 +391,7 @@ d.id
 
 setSelectedDeptIds(
 selectedDeptIds.filter(
-x=>
-x!==d.id
+x=>x!==d.id
 )
 );
 
@@ -403,11 +416,11 @@ d.id
 
 ?
 
-"bg-blue-700 text-white px-4 py-2 rounded-xl"
+"bg-blue-700 text-white px-5 py-3 rounded-xl"
 
 :
 
-"border px-4 py-2 rounded-xl"
+"border px-5 py-3 rounded-xl"
 
 }
 
@@ -423,7 +436,17 @@ d.id
 
 </div>
 
-<div className="flex gap-3">
+</div>
+
+<div>
+
+<label className="font-semibold">
+
+Semester
+
+</label>
+
+<div className="mt-3 flex gap-3">
 
 {
 
@@ -433,6 +456,7 @@ s=>(
 <button
 key={s.id}
 type="button"
+
 onClick={()=>
 setSelectedSem(
 s.id
@@ -445,17 +469,17 @@ selectedSem===s.id
 
 ?
 
-"bg-green-700 text-white px-4 py-2 rounded-xl"
+"bg-green-700 text-white px-5 py-3 rounded-xl"
 
 :
 
-"border px-4 py-2 rounded-xl"
+"border px-5 py-3 rounded-xl"
 
 }
 
 >
 
-Sem {s.number}
+{s.number}
 
 </button>
 
@@ -465,7 +489,17 @@ Sem {s.number}
 
 </div>
 
-<div className="flex flex-wrap gap-3">
+</div>
+
+<div>
+
+<label className="font-semibold">
+
+Subject
+
+</label>
+
+<div className="mt-3 flex flex-wrap gap-3">
 
 {
 
@@ -475,6 +509,7 @@ s=>(
 <button
 key={s.id}
 type="button"
+
 onClick={()=>
 setSelectedSubject(
 s.id
@@ -487,11 +522,11 @@ selectedSubject===s.id
 
 ?
 
-"bg-black text-white px-4 py-2 rounded-xl"
+"bg-purple-700 text-white px-5 py-3 rounded-xl"
 
 :
 
-"border px-4 py-2 rounded-xl"
+"border px-5 py-3 rounded-xl"
 
 }
 
@@ -506,6 +541,16 @@ selectedSubject===s.id
 }
 
 </div>
+
+</div>
+
+<div>
+
+<label className="font-semibold">
+
+Type
+
+</label>
 
 <Select
 value={type}
@@ -544,48 +589,34 @@ value={t.value}
 
 </Select>
 
-<label className="block">
-
-<input
-hidden
-type="file"
-onChange={(e)=>
-setFile(
-e.target.files?.[0]
-||
-null
-)
-}
-/>
-
-<div className="border-2 border-dashed rounded-2xl h-40 flex items-center justify-center cursor-pointer">
-
-{
-
-file
-
-?
-
-file.name
-
-:
-
-"Choose File"
-
-}
-
 </div>
+
+<div>
+
+<label className="font-semibold">
+
+Upload File
 
 </label>
 
+<input
+type="file"
+className="mt-3"
+/>
+
+</div>
+
 <Button
 className="w-full"
-onClick={
-onSubmit
-}
+
 disabled={
 loading
 }
+
+onClick={
+onSubmit
+}
+
 >
 
 {
@@ -608,15 +639,13 @@ loading
 
 message&&
 
-<p className="text-center">
+<p>
 
 {message}
 
 </p>
 
 }
-
-</div>
 
 </div>
 
