@@ -38,66 +38,35 @@ semester_id:string;
 
 export default function UploadPage(){
 
-const [title,setTitle]=
-useState("");
+const [title,setTitle]=useState("");
 
-const [type,setType]=
-useState("");
+const [type,setType]=useState("");
 
-const [
-selectedDeptIds,
-setSelectedDeptIds
-]=
+const [selectedDeptIds,setSelectedDeptIds]=
 useState<string[]>([]);
 
-const [
-selectedSem,
-setSelectedSem
-]=
+const [selectedSem,setSelectedSem]=
 useState("");
 
-const [
-selectedSubject,
-setSelectedSubject
-]=
+const [selectedSubject,setSelectedSubject]=
 useState("");
 
-const [
-file,
-setFile
-]=
-useState<File|null>(
-null
-);
+const [file,setFile]=
+useState<File|null>(null);
 
-const [
-departments,
-setDepartments
-]=
+const [departments,setDepartments]=
 useState<Dept[]>([]);
 
-const [
-semesters,
-setSemesters
-]=
+const [semesters,setSemesters]=
 useState<Sem[]>([]);
 
-const [
-subjects,
-setSubjects
-]=
+const [subjects,setSubjects]=
 useState<Subj[]>([]);
 
-const [
-loading,
-setLoading
-]=
+const [loading,setLoading]=
 useState(false);
 
-const [
-message,
-setMessage
-]=
+const [message,setMessage]=
 useState("");
 
 useEffect(()=>{
@@ -106,33 +75,21 @@ async function load(){
 
 const dept=
 await supabase
-.from(
-"departments"
-)
+.from("departments")
 .select("*")
-.order(
-"code"
-);
+.order("code");
 
 const sem=
 await supabase
-.from(
-"semesters"
-)
+.from("semesters")
 .select("*")
-.order(
-"number"
-);
+.order("number");
 
 const sub=
 await supabase
-.from(
-"subjects"
-)
+.from("subjects")
 .select("*")
-.order(
-"name"
-);
+.order("name");
 
 setDepartments(
 dept.data||[]
@@ -231,17 +188,137 @@ setLoading(
 true
 );
 
-setTimeout(()=>{
+setMessage("");
+
+try{
+
+const {
+data:userData
+}
+=
+await supabase
+.auth
+.getUser();
+
+const userId=
+userData.user?.id;
+
+if(
+!userId
+){
+
+setMessage(
+"Login required"
+);
 
 setLoading(
 false
 );
 
-setMessage(
-"Ready for upload"
+return;
+
+}
+
+const ext=
+file.name
+.split(".")
+.pop();
+
+const path=
+`${userId}/${Date.now()}.${ext}`;
+
+const {
+error:
+uploadErr
+}
+=
+await supabase
+.storage
+.from(
+"resources"
+)
+.upload(
+path,
+file
 );
 
-},1000);
+if(
+uploadErr
+)
+throw uploadErr;
+
+const {
+error:
+dbErr
+}
+=
+await supabase
+.from(
+"resources"
+)
+.insert([
+
+{
+
+title,
+
+type,
+
+subject_id:
+selectedSubject,
+
+file_path:
+path,
+
+status:
+"pending",
+
+uploader_id:
+userId,
+
+created_at:
+new Date()
+.toISOString()
+
+}
+
+]);
+
+if(
+dbErr
+)
+throw dbErr;
+
+setMessage(
+"Uploaded successfully. Waiting for admin approval."
+);
+
+setTitle("");
+
+setType("");
+
+setSelectedSubject("");
+
+setSelectedSem("");
+
+setSelectedDeptIds([]);
+
+setFile(null);
+
+}
+catch(
+e:any
+){
+
+setMessage(
+e.message
+);
+
+}
+
+setLoading(
+false
+);
 
 }
 
@@ -260,9 +337,7 @@ className="text-blue-700"
 
 </a>
 
-<h1
-className="text-3xl font-bold mt-4"
->
+<h1 className="text-3xl font-bold mt-4">
 
 Upload Resource
 
@@ -291,64 +366,20 @@ e.target.value
 <div>
 
 <p className="font-medium mb-2">
+
 Departments
+
 </p>
-
-<button
-type="button"
-className="
-mb-3
-border
-rounded
-px-3
-py-2
-"
-onClick={()=>{
-
-if(
-selectedDeptIds.length
-===
-departments.length
-){
-
-setSelectedDeptIds(
-[]
-);
-
-}
-else{
-
-setSelectedDeptIds(
-departments.map(
-d=>d.id
-)
-);
-
-}
-
-}}
->
-
-Select All
-
-</button>
 
 <div className="flex flex-wrap gap-2">
 
 {
+
 departments.map(
 d=>(
 
 <label
 key={d.id}
-className="
-flex
-gap-2
-border
-rounded
-px-3
-py-2
-"
 >
 
 <input
@@ -370,6 +401,7 @@ d.id
 ]);
 
 }
+
 else{
 
 setSelectedDeptIds(
@@ -391,102 +423,7 @@ x!==d.id
 </label>
 
 ))
-}
 
-</div>
-
-</div>
-
-<div>
-
-<p className="font-medium mb-2">
-
-Semester
-
-</p>
-
-<div className="flex flex-wrap gap-2">
-
-{
-semesters.map(
-s=>(
-
-<button
-key={s.id}
-type="button"
-onClick={()=>
-setSelectedSem(
-s.id
-)
-}
-className={
-
-selectedSem===s.id
-
-?
-
-"px-3 py-2 rounded bg-blue-700 text-white"
-
-:
-
-"px-3 py-2 rounded border"
-
-}
->
-
-{s.number}
-
-</button>
-
-))
-}
-
-</div>
-
-</div>
-
-<div>
-
-<p className="font-medium mb-2">
-
-Subjects
-
-</p>
-
-<div className="flex flex-wrap gap-2">
-
-{
-filteredSubjects.map(
-s=>(
-
-<button
-key={s.name}
-type="button"
-onClick={()=>
-setSelectedSubject(
-s.id
-)
-}
-className={
-
-selectedSubject===s.id
-
-?
-
-"px-3 py-2 rounded bg-blue-700 text-white"
-
-:
-
-"px-3 py-2 rounded border"
-
-}
->
-
-{s.name}
-
-</button>
-
-))
 }
 
 </div>
@@ -495,9 +432,7 @@ selectedSubject===s.id
 
 <Select
 value={type}
-onValueChange={
-setType
-}
+onValueChange={setType}
 >
 
 <SelectTrigger>
@@ -530,26 +465,7 @@ value={t.value}
 
 </Select>
 
-<div>
-
-<label
-className="
-inline-flex
-items-center
-justify-center
-px-4
-py-2
-bg-black
-text-white
-rounded
-cursor-pointer
-"
->
-
-Choose File
-
 <input
-hidden
 type="file"
 onChange={(e)=>
 setFile(
@@ -559,22 +475,6 @@ null
 )
 }
 />
-
-</label>
-
-{
-file&&(
-
-<span className="ml-3">
-
-{file.name}
-
-</span>
-
-)
-}
-
-</div>
 
 <Button
 onClick={
@@ -601,6 +501,7 @@ loading
 </Button>
 
 {
+
 message&&
 
 <p>
@@ -608,6 +509,7 @@ message&&
 {message}
 
 </p>
+
 }
 
 </div>
