@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-
 import { Input } from "@/components/ui/input";
-
 import {
 Select,
 SelectContent,
@@ -13,9 +11,7 @@ SelectValue,
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-
 import { supabase } from "@/lib/supabaseClient";
-
 import { TYPES } from "@/lib/constants";
 
 type Dept={
@@ -39,47 +35,64 @@ semester_id:string;
 export default function UploadPage(){
 
 const [title,setTitle]=useState("");
-
 const [type,setType]=useState("");
 
-const [selectedDeptIds,setSelectedDeptIds]=
-useState<string[]>([]);
+const [
+selectedDeptIds,
+setSelectedDeptIds
+]=useState<string[]>([]);
 
-const [selectedSem,setSelectedSem]=
-useState("");
+const [
+selectedSem,
+setSelectedSem
+]=useState("");
 
-const [selectedSubject,setSelectedSubject]=
-useState("");
+const [
+selectedSubject,
+setSelectedSubject
+]=useState("");
 
-const [file,setFile]=
-useState<File|null>(null);
+const [
+file,
+setFile
+]=useState<File|null>(null);
 
-const [departments,setDepartments]=
-useState<Dept[]>([]);
+const [
+departments,
+setDepartments
+]=useState<Dept[]>([]);
 
-const [semesters,setSemesters]=
-useState<Sem[]>([]);
+const [
+semesters,
+setSemesters
+]=useState<Sem[]>([]);
 
-const [subjects,setSubjects]=
-useState<Subj[]>([]);
+const [
+subjects,
+setSubjects
+]=useState<Subj[]>([]);
 
-const [loading,setLoading]=
-useState(false);
+const [
+loading,
+setLoading
+]=useState(false);
 
-const [message,setMessage]=
-useState("");
+const [
+message,
+setMessage
+]=useState("");
 
 useEffect(()=>{
 
 (async()=>{
 
-const d=
+const dept=
 await supabase
 .from("departments")
 .select("*")
 .order("code");
 
-const s=
+const sem=
 await supabase
 .from("semesters")
 .select("*")
@@ -92,11 +105,11 @@ await supabase
 .order("name");
 
 setDepartments(
-d.data||[]
+dept.data||[]
 );
 
 setSemesters(
-s.data||[]
+sem.data||[]
 );
 
 setSubjects(
@@ -134,15 +147,14 @@ s.department_id
 
 ||
 
-s.semester_id===
-selectedSem
+selectedSem===
+s.semester_id
 
 )
 
 );
 
-},
-[
+},[
 subjects,
 selectedDeptIds,
 selectedSem
@@ -167,9 +179,7 @@ return;
 
 try{
 
-setLoading(
-true
-);
+setLoading(true);
 
 const {
 data:user
@@ -195,7 +205,7 @@ throw new Error(
 const ext=
 file.name
 .split(".")
-pop();
+.pop();
 
 const path=
 `${uid}/${Date.now()}.${ext}`;
@@ -203,7 +213,9 @@ const path=
 const upload=
 await supabase
 .storage
-.from("resources")
+.from(
+"resources"
+)
 .upload(
 path,
 file
@@ -211,12 +223,17 @@ file
 
 if(
 upload.error
-)
+){
+
 throw upload.error;
+
+}
 
 const insert=
 await supabase
-.from("resources")
+.from(
+"resources"
+)
 .insert([{
 
 title,
@@ -239,8 +256,11 @@ uid
 
 if(
 insert.error
-)
+){
+
 throw insert.error;
+
+}
 
 setMessage(
 "Uploaded successfully. Waiting for admin approval."
@@ -257,9 +277,7 @@ e.message
 
 }
 
-setLoading(
-false
-);
+setLoading(false);
 
 }
 
@@ -278,13 +296,15 @@ className="text-blue-700"
 
 </a>
 
-<div className="bg-white rounded-3xl shadow-lg mt-6 p-8 space-y-8">
+<div className="bg-white rounded-3xl shadow-lg mt-6 p-8">
 
 <h1 className="text-4xl font-bold">
 
 Upload Resource
 
 </h1>
+
+<div className="mt-8 space-y-8">
 
 <div>
 
@@ -328,7 +348,8 @@ rounded
 onClick={()=>{
 
 if(
-selectedDeptIds.length===
+selectedDeptIds.length
+===
 departments.length
 ){
 
@@ -359,48 +380,25 @@ Select All
 <div className="flex flex-wrap gap-3 mt-4">
 
 {
-
 departments.map(
 d=>(
 
-<label
+<button
 key={d.id}
->
 
-<input
+type="button"
 
-hidden
+onClick={()=>{
 
-type="checkbox"
-
-checked={
+if(
 selectedDeptIds.includes(
 d.id
 )
-}
-
-onChange={(e)=>{
-
-if(
-e.target.checked
 ){
 
 setSelectedDeptIds(
-prev=>[
-...prev,
-d.id
-]
-);
 
-}
-
-else{
-
-setSelectedDeptIds(
-
-prev=>
-
-prev.filter(
+selectedDeptIds.filter(
 x=>
 x!==d.id
 )
@@ -409,13 +407,16 @@ x!==d.id
 
 }
 
+else{
+
+setSelectedDeptIds([
+...selectedDeptIds,
+d.id
+]);
+
+}
+
 }}
-
->
-
-</input>
-
-<div
 
 className={
 
@@ -437,12 +438,9 @@ d.id
 
 {d.code}
 
-</div>
-
-</label>
+</button>
 
 ))
-
 }
 
 </div>
@@ -559,13 +557,11 @@ selectedSubject===s.id
 
 Type
 
-</label>
+label>
 
 <Select
 value={type}
-onValueChange={
-setType
-}
+onValueChange={setType}
 >
 
 <SelectTrigger>
@@ -652,9 +648,11 @@ file&&(
 
 <Button
 className="w-full"
+
 onClick={
 onSubmit
 }
+
 disabled={
 loading
 }
@@ -682,6 +680,8 @@ message&&(
 </p>
 )
 }
+
+</div>
 
 </div>
 
