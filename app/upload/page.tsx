@@ -649,7 +649,7 @@ value={t.value}
 
 <label className="font-semibold">
 
-Upload File
+Upload File (MAX 10MB)
 
 </label>
 
